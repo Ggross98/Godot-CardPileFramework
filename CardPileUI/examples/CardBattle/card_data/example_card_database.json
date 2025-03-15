@@ -1,0 +1,51 @@
+[
+  {
+	"nice_name": "Slice",
+	"frontface_texture_path": "res://examples/CardBattle/assets/card_attack.png",
+	"backface_texture_path": "res://examples/CardBattle/assets/card_back.png",
+	"resource_script_path": "res://examples/CardBattle/MyCardData.cs",
+	"type": "Attack",
+	"value": 1,
+	"cost": 1,
+	"description": "Deal {value} damage"
+  },
+  {
+	"nice_name": "Dice",
+	"frontface_texture_path": "res://examples/CardBattle/assets/card_dice.png",
+	"backface_texture_path": "res://examples/CardBattle/assets/card_back.png",
+	"resource_script_path": "res://examples/CardBattle/MyCardData.cs",
+	"type": "Attack",
+	"value": 3,
+	"cost": 2,
+	"description": "Deal {value} damage"
+  },
+  {
+	"nice_name": "Big Axe",
+	"frontface_texture_path": "res://examples/CardBattle/assets/card_big_attack.png",
+	"backface_texture_path": "res://examples/CardBattle/assets/card_back.png",
+	"resource_script_path": "res://examples/CardBattle/MyCardData.cs",
+	"type": "Attack",
+	"value": 8,
+	"cost": 3,
+	"description": "Violently deal {value} damage",
+  },
+  {
+	"nice_name": "Dodge",
+	"frontface_texture_path": "res://examples/CardBattle/assets/card_block.png",
+	"backface_texture_path": "res://examples/CardBattle/assets/card_back.png",
+	"resource_script_path": "res://examples/CardBattle/MyCardData.cs",
+	"type": "Block",
+	"value": 3,
+	"cost": 1,
+	"description": "Gain {value} block"
+  },
+  {
+	"nice_name": "Shake",
+	"frontface_texture_path": "res://examples/CardBattle/assets/card_shake.png",
+	"backface_texture_path": "res://examples/CardBattle/assets/card_back.png",
+	"resource_script_path": "res://examples/CardBattle/MyCardData.cs",
+	"type": "Skill",
+	"cost": 0,
+	"description": "Gain [wave]a ton[/wave] of mana",
+  }
+]

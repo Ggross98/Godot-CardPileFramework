@@ -1,0 +1,202 @@
+[gd_scene load_steps=15 format=3 uid="uid://b51mnai4agdp1"]
+
+[ext_resource type="Script" uid="uid://dj8kvmy8rhk61" path="res://examples/CardBattle/CardBattle.cs" id="1_k583c"]
+[ext_resource type="Script" uid="uid://duprfng4b07u1" path="res://examples/CardBattle/Enemy.cs" id="2_66fgq"]
+[ext_resource type="Texture2D" uid="uid://c2a1iwxfifb74" path="res://examples/CardBattle/assets/enemy_sprite.png" id="3_eqcsg"]
+[ext_resource type="Script" uid="uid://dlt1mo5dvtiba" path="res://examples/CardBattle/BlockZone.cs" id="4_42g6k"]
+[ext_resource type="Texture2D" uid="uid://df8p1vp2gbfpc" path="res://examples/CardBattle/assets/circle.png" id="4_q5k3w"]
+[ext_resource type="Script" uid="uid://bj4pqqa6y5rie" path="res://examples/CardBattle/MyCardPile.cs" id="5_htl6c"]
+[ext_resource type="PackedScene" uid="uid://dqr42gfvtct60" path="res://examples/CardBattle/my_card.tscn" id="6_42g6k"]
+
+[sub_resource type="Gradient" id="Gradient_42g6k"]
+colors = PackedColorArray(0, 0, 0, 0.180392, 0, 0, 0, 0.145098)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_htl6c"]
+gradient = SubResource("Gradient_42g6k")
+
+[sub_resource type="Curve" id="Curve_htl6c"]
+_limits = [-15.0, 15.0, 0.0, 1.0]
+_data = [Vector2(0, -15), 0.0, 0.0, 0, 0, Vector2(1, 15), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_1c33f"]
+_limits = [0.0, 40.0, 0.0, 1.0]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.498588, 40), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="LabelSettings" id="LabelSettings_1c33f"]
+font_size = 32
+
+[sub_resource type="LabelSettings" id="LabelSettings_jbkk5"]
+font_size = 24
+
+[sub_resource type="Curve" id="Curve_42g6k"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.529032, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="CardBattle" type="Node2D" node_paths=PackedStringArray("cardPile", "energyLabel", "shieldLabel", "endTurnButton", "descriptionPanel", "descriptionLabel", "targetingLine")]
+script = ExtResource("1_k583c")
+cardPile = NodePath("MyCardPile")
+energyLabel = NodePath("Status/Energy/Label")
+shieldLabel = NodePath("Status/Shield/Label")
+endTurnButton = NodePath("Status/Button")
+descriptionPanel = NodePath("PanelContainer")
+descriptionLabel = NodePath("PanelContainer/RichTextLabel")
+targetingLine = NodePath("TargetingLine")
+
+[node name="Dropzones" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 401.0
+offset_top = 57.0
+offset_right = 441.0
+offset_bottom = 97.0
+
+[node name="Background" type="TextureRect" parent="Dropzones"]
+layout_mode = 0
+offset_right = 800.0
+offset_bottom = 400.0
+texture = SubResource("GradientTexture1D_htl6c")
+
+[node name="Enemy" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "cardPileUI")]
+anchors_preset = 0
+offset_left = 328.0
+offset_top = 118.0
+offset_right = 428.0
+offset_bottom = 268.0
+mouse_filter = 2
+script = ExtResource("2_66fgq")
+HPLabel = NodePath("HP")
+portrait = NodePath("TextureRect")
+cardPileUI = NodePath("../../MyCardPile")
+
+[node name="TextureRect" type="TextureRect" parent="Dropzones/Enemy"]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 150.0
+mouse_filter = 2
+texture = ExtResource("3_eqcsg")
+expand_mode = 1
+
+[node name="Name" type="Label" parent="Dropzones/Enemy"]
+layout_mode = 0
+offset_left = 105.0
+offset_top = 60.0
+offset_right = 145.0
+offset_bottom = 83.0
+text = "Enemy"
+
+[node name="HP" type="Label" parent="Dropzones/Enemy"]
+layout_mode = 0
+offset_left = 105.0
+offset_top = 90.0
+offset_right = 148.0
+offset_bottom = 113.0
+text = "50/50"
+
+[node name="BlockZone" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileUI")]
+anchors_preset = 0
+offset_right = 800.0
+offset_bottom = 400.0
+script = ExtResource("4_42g6k")
+cardPileUI = NodePath("../../MyCardPile")
+
+[node name="MyCardPile" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("5_htl6c")
+JsonCardDatabasePath = "res://examples/CardBattle/card_data/example_card_database.json"
+JsonCardCollectionPath = "res://examples/CardBattle/card_data/example_card_collection.json"
+ExtendedCardUI = ExtResource("6_42g6k")
+DrawPilePosition = Vector2(50, 600)
+HandPilePosition = Vector2(700, 600)
+DiscardPilePosition = Vector2(1400, 600)
+ClickDrawPileToDraw = false
+DragWhenClicked = false
+HandRotationCurve = SubResource("Curve_htl6c")
+HandVerticalCurve = SubResource("Curve_1c33f")
+DiscardFaceUp = false
+
+[node name="Status" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1194.0
+offset_top = 61.0
+offset_right = 1594.0
+offset_bottom = 461.0
+
+[node name="HPLabel" type="Label" parent="Status"]
+layout_mode = 0
+offset_left = 164.0
+offset_top = 62.0
+offset_right = 326.0
+offset_bottom = 107.0
+text = "HP    90/90"
+label_settings = SubResource("LabelSettings_1c33f")
+
+[node name="Energy" type="TextureRect" parent="Status"]
+self_modulate = Color(0.783386, 0.21784, 0.229909, 1)
+layout_mode = 0
+offset_left = 33.0
+offset_top = 50.0
+offset_right = 93.0
+offset_bottom = 110.0
+texture = ExtResource("4_q5k3w")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="Status/Energy"]
+layout_mode = 0
+offset_right = 60.0
+offset_bottom = 60.0
+text = "3/3"
+label_settings = SubResource("LabelSettings_jbkk5")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Shield" type="TextureRect" parent="Status"]
+self_modulate = Color(0.322593, 0.410148, 0.823761, 1)
+layout_mode = 0
+offset_left = 98.0
+offset_top = 51.0
+offset_right = 158.0
+offset_bottom = 111.0
+texture = ExtResource("4_q5k3w")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="Status/Shield"]
+layout_mode = 0
+offset_right = 60.0
+offset_bottom = 60.0
+text = "0"
+label_settings = SubResource("LabelSettings_jbkk5")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="Status"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 0
+offset_left = 103.0
+offset_top = 255.0
+offset_right = 303.0
+offset_bottom = 315.0
+theme_override_font_sizes/font_size = 32
+text = "End Turn"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+visible = false
+z_index = 9
+offset_right = 300.0
+offset_bottom = 100.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="PanelContainer"]
+layout_mode = 2
+text = "This is the description label"
+
+[node name="TargetingLine" type="Line2D" parent="."]
+visible = false
+z_index = 10
+points = PackedVector2Array(0, 0, 500, 0)
+width = 25.0
+width_curve = SubResource("Curve_42g6k")

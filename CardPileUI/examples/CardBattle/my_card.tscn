@@ -1,0 +1,100 @@
+[gd_scene load_steps=9 format=3 uid="uid://dqr42gfvtct60"]
+
+[ext_resource type="Script" uid="uid://cam1al1w4ubq7" path="res://examples/CardBattle/MyCardUI.cs" id="1_5c0nu"]
+[ext_resource type="Texture2D" uid="uid://t3e53amqdxm8" path="res://examples/CardBattle/assets/card_back.png" id="2_xoidk"]
+[ext_resource type="Texture2D" uid="uid://ba04arru2pkhp" path="res://examples/CardBattle/assets/card_attack.png" id="3_o6ylj"]
+[ext_resource type="Texture2D" uid="uid://df8p1vp2gbfpc" path="res://examples/CardBattle/assets/circle.png" id="4_0frmj"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_hlp4u"]
+font_color = Color(0, 0, 0, 1)
+outline_size = 6
+
+[sub_resource type="LabelSettings" id="LabelSettings_gm0of"]
+font_size = 24
+font_color = Color(0, 0, 0, 1)
+outline_size = 6
+
+[sub_resource type="LabelSettings" id="LabelSettings_xakyf"]
+font_size = 24
+font_color = Color(0, 0, 0, 1)
+outline_size = 6
+
+[sub_resource type="LabelSettings" id="LabelSettings_88bfs"]
+font_color = Color(0, 0, 0, 1)
+outline_size = 4
+
+[node name="MyCard" type="Control" node_paths=PackedStringArray("nameLabel", "typeLabel", "costLabel", "frontface", "backface")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_5c0nu")
+nameLabel = NodePath("Frontface/Name")
+typeLabel = NodePath("Frontface/Type")
+costLabel = NodePath("Frontface/Cost/Label")
+frontface = NodePath("Frontface")
+backface = NodePath("Backface")
+
+[node name="Backface" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_xoidk")
+
+[node name="Label" type="Label" parent="Backface"]
+visible = false
+layout_mode = 0
+offset_left = 65.0
+offset_top = 48.0
+offset_right = 215.0
+offset_bottom = 82.0
+rotation = 1.5708
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 4
+text = "Simple Card Pile UI"
+label_settings = SubResource("LabelSettings_hlp4u")
+
+[node name="Frontface" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("3_o6ylj")
+
+[node name="Cost" type="TextureRect" parent="Frontface"]
+self_modulate = Color(0.783386, 0.21784, 0.229909, 1)
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 52.0
+offset_bottom = 50.0
+texture = ExtResource("4_0frmj")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="Frontface/Cost"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+text = "1"
+label_settings = SubResource("LabelSettings_gm0of")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Name" type="Label" parent="Frontface"]
+layout_mode = 0
+offset_top = 174.0
+offset_right = 168.0
+offset_bottom = 208.0
+text = "Card Name"
+label_settings = SubResource("LabelSettings_xakyf")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Type" type="Label" parent="Frontface"]
+layout_mode = 0
+offset_top = 202.0
+offset_right = 168.0
+offset_bottom = 225.0
+text = "Type"
+label_settings = SubResource("LabelSettings_88bfs")
+horizontal_alignment = 1
+vertical_alignment = 1

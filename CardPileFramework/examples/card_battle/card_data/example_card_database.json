@@ -1,0 +1,59 @@
+[
+  {
+	"nice_name": "Knife",
+	"frontface_texture_path": "res://examples/card_battle/assets/card_blank.png",
+	"backface_texture_path": "res://examples/card_battle/assets/card_back.png",
+	"image_texture_path": "res://examples/card_battle/assets/knife.png",
+	"resource_script_path": "res://examples/card_battle/MyCardData.cs",
+	"type": "Attack",
+	"value": 4,
+	"cost": 0,
+	"description": "Deal {value} damage"
+  },
+  {
+	"nice_name": "Sword",
+	"frontface_texture_path": "res://examples/card_battle/assets/card_blank.png",
+	"backface_texture_path": "res://examples/card_battle/assets/card_back.png",
+	"image_texture_path": "res://examples/card_battle/assets/sword.png",
+	"resource_script_path": "res://examples/card_battle/MyCardData.cs",
+	"type": "Attack",
+	"value": 6,
+	"cost": 1,
+	"description": "Deal {value} damage"
+  },
+  {
+	"nice_name": "Axe",
+	"frontface_texture_path": "res://examples/card_battle/assets/card_blank.png",
+	"backface_texture_path": "res://examples/card_battle/assets/card_back.png",
+	"image_texture_path": "res://examples/card_battle/assets/axe.png",
+	"resource_script_path": "res://examples/card_battle/MyCardData.cs",
+	"type": "Attack",
+	"value": 13,
+	"cost": 2,
+	"description": "Deal {value} damage"
+  },
+  {
+	"nice_name": "Potion",
+	"frontface_texture_path": "res://examples/card_battle/assets/card_blank.png",
+	"backface_texture_path": "res://examples/card_battle/assets/card_back.png",
+	"image_texture_path": "res://examples/card_battle/assets/potion.png",
+	"resource_script_path": "res://examples/card_battle/MyCardData.cs",
+	"type": "Skill",
+	"value": 4,
+	"cost": 1,
+	"description": "Heal {value} HP"
+  },
+  {
+	"nice_name": "Block",
+	"frontface_texture_path": "res://examples/card_battle/assets/card_blank.png",
+	"backface_texture_path": "res://examples/card_battle/assets/card_back.png",
+	"image_texture_path": "res://examples/card_battle/assets/shield.png",
+	"resource_script_path": "res://examples/card_battle/MyCardData.cs",
+	"type": "Skill",
+	"value": 5,
+	"cost": 1,
+	"description": "Gain {value} shield"
+  }
+  
+  
+]

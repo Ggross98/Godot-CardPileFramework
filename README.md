@@ -9,19 +9,29 @@ The main features are:
 * **Manage card piles**. A simple manager for typical card-game with hand cards, draw and discard piles.
 * **Save and load**. Save/load card and deck data in .json format.
 * **UI animations**. Highly customizable animations and signal system for drag, drop, draw, use and discard cards.
-  
-To better show how the framework works, a demo of turn-based card-battle game is available.
+
 ## Table of Contents
 - [Installation](#Installation)
 - [Classes](#Classes)
 - [Example](#Example)
 - [Credits](#Credits)
 ## Installation
-TODO
+* Download the project, and open it with Godot editor.
+* Or copy the `CardPileFramework/addons/card_pile_framework` folder and paste in your project.
+* Enter `using Ggross.CardPileFramework` in start of your .cs script file.
 ## Classes
-TODO
+The currently available classes of the framework are listed below.
+| Type | Class Name | Description |
+|--|--|--|
+| Manager | SimpleCardPileManager | Manager for a typical card system with hand cards, draw and discard piles. |
+| Data | CardData | Base class of card data. Extends from `Resource` |
+| UI Object | Card | Base class of card UI objects. |
+| UI Object | CardDropzone | Base class for area which handles card drop events. |
+| Utility | MathUtils | A utility class for mathematical calculations. |
+| Utility | JsonUtils | A utility class for saving and loading .json files. |
 ## Example
-TODO
+To better show how the framework works, a demo of turn-based card-battle game is available.  
+![](images/card_battle.png)  
 ## Credits
 * Thanks a lot to [simple-card-pile-ui](https://github.com/insideout-andrew/simple-card-pile-ui) and [card-framework](https://github.com/chun92/card-framework). In addition to the conceptual inspiration, a part of scripts are converted from their GDScript codes.
 * Graphical assets are from [Kenney](https://www.kenney.nl/assets/platformer-characters), [Cazwolf](https://cazwolf.itch.io/pixel-fantasy-cards), and [Cainos](https://cainos.itch.io/pixel-art-icon-pack-rpg).

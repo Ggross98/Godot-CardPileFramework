@@ -23,9 +23,11 @@ The main features are:
 The currently available classes of the framework are listed below.
 | Type | Class Name | Description |
 |--|--|--|
-| Manager | SimpleCardPileManager | Manager for a typical card system with hand cards, draw and discard piles. |
+| Manager | CardPileManager | Base class for managing card objects. |
+| | → SimpleCardPileManager | Implementation of a manager for typical card-pile systems with hand, draw and discard piles. |
 | Data | CardData | Base class of card data. Extends from `Resource` |
 | UI Object | Card | Base class of card UI objects. |
+| | → SimpleCard | Implementation of card UI objects in a typical card-pile system. |
 | UI Object | CardDropzone | Base class for area which handles card drop events. |
 | Utility | MathUtils | A utility class for mathematical calculations. |
 | Utility | JsonUtils | A utility class for saving and loading .json files. |

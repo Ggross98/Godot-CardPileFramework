@@ -2,7 +2,7 @@ using Ggross.CardPileFramework;
 using Godot;
 using System;
 
-public partial class MyCard : Card{
+public partial class MyCard : SimpleCard{
     [Export] 
     private Label nameLabel, typeLabel, costLabel;
 
@@ -31,4 +31,5 @@ public partial class MyCard : Card{
 
         image.Texture = GD.Load<Texture2D>(data.image_texture_path);
     }
+
 }

@@ -87,8 +87,8 @@ public partial class CardBattle : Node2D
 
         Energy = TURN_ENERGY;
         Shield = 0;
-        foreach(var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.Piles.HandPile)){
-            cardPileManager.SetCardPile(card, SimpleCardPileManager.Piles.DiscardPile);
+        foreach(var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.PilesType.HandPile)){
+            cardPileManager.SetCardPile(card, SimpleCardPileManager.PilesType.DiscardPile);
         }
 
         cardPileManager.Draw(TURN_DRAW);

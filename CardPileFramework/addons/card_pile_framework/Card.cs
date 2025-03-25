@@ -7,6 +7,7 @@ using Godot.Collections;
 [Tool]
 public partial class Card : Control
 {
+    #region Signals
     [Signal]
     public delegate void CardHoveredEventHandler(Card card);
     [Signal]
@@ -16,21 +17,21 @@ public partial class Card : Control
     [Signal]
     public delegate void CardDroppedEventHandler(Card card);
     [Signal] 
-    public delegate void CardDataUpdatedEventHandler(Card card);
+    public delegate void CardDataUpdatedEventHandler(Card card);    
+    #endregion
+    
 
     [Export]
     public CardData cardData;
 
-    [Export] protected TextureRect frontface, backface;
-    // private string frontfaceTexturePath;
-    // private string backfaceTexturePath;
-
+    [Export] protected TextureRect frontface, backface;    
     public bool isClicked = false;
     public bool mouseIsHovering = false;
     public Vector2 targetPosition = Vector2.Zero;
     [Export] protected float returnSpeed = 0.2f;
     [Export] protected int hoverDistance = 10;
     [Export] protected bool dragWhenClicked = true;
+    protected int lastChildCount = 0;
 
     public override void _Ready()
     {
@@ -47,6 +48,28 @@ public partial class Card : Control
         GuiInput += OnGuiInput;
 
         
+    }
+
+    public override void _Process(double delta)
+    {
+        if (isClicked && dragWhenClicked)
+        {
+            targetPosition = GetGlobalMousePosition() - CustomMinimumSize * 0.5f;
+        }
+        if (isClicked)
+        {
+            Position = targetPosition;
+        }
+        else if (Position != targetPosition)
+        {
+            Position = MathUtils.Vector2Lerp(Position, targetPosition, returnSpeed);
+        }
+
+        if (Engine.IsEditorHint() && lastChildCount != GetChildCount())
+        {
+            UpdateConfigurationWarnings();
+            lastChildCount = GetChildCount();
+        }
     }
 
     public virtual void UpdateDisplay(){
@@ -85,105 +108,54 @@ public partial class Card : Control
         frontface.Visible = cardIsFacing == Vector2.Up;
     }
 
-    private void SetDisabled(bool val)
+    protected virtual void SetDisabled(bool val)
     {
         if (val)
         {
             mouseIsHovering = false;
             isClicked = false;
             Rotation = 0;
-            var parent = GetParent();
-            if (parent is SimpleCardPileManager cardPileUI)
-            {
-                cardPileUI.ResetCardUiZIndex();
-            }
         }
     }
 
-    private bool CardCanBeInteractedWith()
+    protected virtual bool IsInteractable()
     {
-        var parent = GetParent();
-        var valid = false;
-
-        if (parent is SimpleCardPileManager cardPileUI)
-        {
-            if (cardPileUI.IsCardInHand(this))
-            {
-                valid = cardPileUI.HandEnabled && !cardPileUI.IsAnyCardUiClicked();
-            }
-
-            var dropzone = cardPileUI.GetCardDropzone(this);
-            if (dropzone != null)
-            {
-                valid = dropzone.GetTopCard() == this && !cardPileUI.IsAnyCardUiClicked();
-            }
-        }
-
-        return valid;
+        return true;
     }
 
-    private void OnMouseEntered()
+    protected virtual void OnMouseEntered()
     {
-        if (CardCanBeInteractedWith())
+        if (IsInteractable())
         {
             mouseIsHovering = true;
             targetPosition.Y -= hoverDistance;
-            var parent = GetParent();
-            if (parent is SimpleCardPileManager cardPileUI)
-            {
-                cardPileUI.ResetCardUiZIndex();
-            }
             EmitSignal(nameof(CardHovered), this);
         }
     }
 
-    private void OnMouseExited()
+    protected virtual void OnMouseExited()
     {
-        if (isClicked)
-        {
-            return;
-        }
 
-        if (mouseIsHovering)
+        if (!isClicked && mouseIsHovering)
         {
             mouseIsHovering = false;
             targetPosition.Y += hoverDistance;
-            var parent = GetParent();
-            if (parent is SimpleCardPileManager cardPileUI)
-            {
-                cardPileUI.ResetCardUiZIndex();
-            }
             EmitSignal(nameof(CardUnhovered), this);
         }
     }
 
-    private void OnGuiInput(InputEvent @event)
+    protected virtual void OnGuiInput(InputEvent @event)
     {
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left)
         {
-            var parent = GetParent();
 
             if (mouseEvent.Pressed)
             {
-                if (CardCanBeInteractedWith())
+                if (IsInteractable())
                 {
                     isClicked = true;
                     Rotation = 0;
-                    if (parent is SimpleCardPileManager cardPileUI)
-                    {
-                        cardPileUI.ResetCardUiZIndex();
-                    }
                     EmitSignal(nameof(CardClicked), this);
-                }
-
-                if (parent is SimpleCardPileManager cardPileUI2 && 
-                    cardPileUI2.GetCardPileSize(SimpleCardPileManager.Piles.DrawPile) > 0 && 
-                    cardPileUI2.HandEnabled &&
-                    cardPileUI2.GetCardsInPile(SimpleCardPileManager.Piles.DrawPile).Contains(this) && 
-                    !cardPileUI2.IsAnyCardUiClicked() && 
-                    cardPileUI2.ClickDrawPileToDraw)
-                {
-                    cardPileUI2.Draw(1);
                 }
             }
             else
@@ -193,11 +165,6 @@ public partial class Card : Control
                     isClicked = false;
                     mouseIsHovering = false;
                     Rotation = 0;
-
-                    if (parent is SimpleCardPileManager cardPileUI3 && cardPileUI3.IsCardInHand(this))
-                    {
-                        cardPileUI3.CallDeferred("ResetTargetPositions");
-                    }
 
                     var allDropzones = new Godot.Collections.Array();
                     GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
@@ -221,7 +188,7 @@ public partial class Card : Control
         }
     }
 
-    private void GetDropzones(Node node, string className, Godot.Collections.Array result)
+    protected void GetDropzones(Node node, string className, Godot.Collections.Array result)
     {
         if (node is CardDropzone)
         {
@@ -234,31 +201,9 @@ public partial class Card : Control
         }
     }
 
+    
 
-
-    public override void _Process(double delta)
-    {
-        if (isClicked && dragWhenClicked)
-        {
-            targetPosition = GetGlobalMousePosition() - CustomMinimumSize * 0.5f;
-        }
-        if (isClicked)
-        {
-            Position = targetPosition;
-        }
-        else if (Position != targetPosition)
-        {
-            Position = MathUtils.Vector2Lerp(Position, targetPosition, returnSpeed);
-        }
-
-        if (Engine.IsEditorHint() && lastChildCount != GetChildCount())
-        {
-            UpdateConfigurationWarnings();
-            lastChildCount = GetChildCount();
-        }
-    }
-
-    private int lastChildCount = 0;
+    
 
     public override string[] _GetConfigurationWarnings()
     {

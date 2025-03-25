@@ -8,6 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://bws1g7ruy6xpl" path="res://examples/card_battle/assets/circle.png" id="4_q5k3w"]
 [ext_resource type="Script" uid="uid://bj4pqqa6y5rie" path="res://examples/card_battle/MyCardPileManager.cs" id="5_htl6c"]
 [ext_resource type="PackedScene" uid="uid://dqr42gfvtct60" path="res://examples/card_battle/my_card.tscn" id="6_42g6k"]
+[ext_resource type="Curve" uid="uid://bgc87714i054f" path="res://examples/card_battle/resources/hand_rotation_curve.tres" id="7_6x3j2"]
+[ext_resource type="Curve" uid="uid://cfnyg5iqs54fi" path="res://examples/card_battle/resources/hand_vertical_curve.tres" id="8_1ass8"]
+[ext_resource type="Curve" uid="uid://ixk072erbhwm" path="res://examples/card_battle/resources/targeting_line_curve.tres" id="11_1ass8"]
 
 [sub_resource type="Gradient" id="Gradient_42g6k"]
 colors = PackedColorArray(0, 0, 0, 0.180392, 0, 0, 0, 0.145098)
@@ -15,25 +18,11 @@ colors = PackedColorArray(0, 0, 0, 0.180392, 0, 0, 0, 0.145098)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_htl6c"]
 gradient = SubResource("Gradient_42g6k")
 
-[sub_resource type="Curve" id="Curve_htl6c"]
-_limits = [-15.0, 15.0, 0.0, 1.0]
-_data = [Vector2(0, -15), 0.0, 0.0, 0, 0, Vector2(1, 15), 0.0, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="Curve" id="Curve_1c33f"]
-_limits = [0.0, 40.0, 0.0, 1.0]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.498588, 40), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
-
 [sub_resource type="LabelSettings" id="LabelSettings_1c33f"]
 font_size = 32
 
 [sub_resource type="LabelSettings" id="LabelSettings_jbkk5"]
 font_size = 24
-
-[sub_resource type="Curve" id="Curve_42g6k"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.529032, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
 
 [node name="CardBattle" type="Node2D" node_paths=PackedStringArray("cardPileManager", "energyLabel", "shieldLabel", "endTurnButton", "descriptionPanel", "descriptionLabel", "targetingLine")]
 script = ExtResource("1_k583c")
@@ -145,15 +134,15 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("5_htl6c")
-JsonCardDatabasePath = "res://examples/card_battle/card_data/example_card_database.json"
-JsonCardCollectionPath = "res://examples/card_battle/card_data/example_card_collection.json"
-ExtendedCardUI = ExtResource("6_42g6k")
-DrawPilePosition = Vector2(20, 600)
-HandPilePosition = Vector2(700, 600)
-DiscardPilePosition = Vector2(1400, 600)
-DragWhenClicked = false
-HandRotationCurve = SubResource("Curve_htl6c")
-HandVerticalCurve = SubResource("Curve_1c33f")
+cardDatabasePath = "res://examples/card_battle/card_data/example_card_database.json"
+cardCollectionPath = "res://examples/card_battle/card_data/example_card_collection.json"
+drawPilePosition = Vector2(20, 600)
+handPilePosition = Vector2(630, 600)
+discardPilePosition = Vector2(1250, 600)
+dragWhenClicked = false
+handRotationCurve = ExtResource("7_6x3j2")
+handVerticalCurve = ExtResource("8_1ass8")
+cardUIPrefab = ExtResource("6_42g6k")
 
 [node name="Status" type="Control" parent="."]
 layout_mode = 3
@@ -237,4 +226,4 @@ visible = false
 z_index = 10
 points = PackedVector2Array(0, 0, 500, 0)
 width = 25.0
-width_curve = SubResource("Curve_42g6k")
+width_curve = ExtResource("11_1ass8")

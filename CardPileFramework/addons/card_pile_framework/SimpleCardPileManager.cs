@@ -5,30 +5,18 @@ using System;
 using Godot.Collections;
 using System.Linq;
 
-public partial class SimpleCardPileManager : Control
-{
-    [Signal]
-    public delegate void DrawPileUpdatedEventHandler();
-    [Signal]
-    public delegate void HandPileUpdatedEventHandler();
-    [Signal]
-    public delegate void DiscardPileUpdatedEventHandler();
-    [Signal]
-    public delegate void CardRemovedFromDropzoneEventHandler(CardDropzone dropzone, Card card);
-    [Signal]
-    public delegate void CardAddedToDropzoneEventHandler(CardDropzone dropzone, Card card);
-    [Signal]
-    public delegate void CardHoveredEventHandler(Card card);
-    [Signal]
-    public delegate void CardUnhoveredEventHandler(Card card);
-    [Signal]
-    public delegate void CardClickedEventHandler(Card card);
-    [Signal]
-    public delegate void CardDroppedEventHandler(Card card);
-    [Signal]
-    public delegate void CardRemovedFromGameEventHandler(Card card);
+/// <summary>
+/// Implementation of a simple card pile manager considering draw, discard and hand piles
+/// </summary>
+public partial class SimpleCardPileManager : CardPileManager
+{   
+    #region Signals
+    [Signal] public delegate void DrawPileUpdatedEventHandler();
+    [Signal] public delegate void HandPileUpdatedEventHandler();
+    [Signal] public delegate void DiscardPileUpdatedEventHandler();
+    #endregion
 
-    public enum Piles
+    public enum PilesType
     {
         DrawPile,
         HandPile,
@@ -43,83 +31,86 @@ public partial class SimpleCardPileManager : Control
         Down
     }
 
+    [ExportGroup("Create Cards")]
     [Export(PropertyHint.File, "*.json")]
-    public string JsonCardDatabasePath;
-    [Export(PropertyHint.File, "*.json")]
-    public string JsonCardCollectionPath;
-    [Export]
-    public PackedScene ExtendedCardUI;
+    public string cardDatabasePath, cardCollectionPath;
+    
 
     [ExportGroup("Pile Positions")]
     [Export]
-    public Vector2 DrawPilePosition = new Vector2(20, 460);
+    public Vector2 drawPilePosition = new Vector2(20, 460);
     [Export]
-    public Vector2 HandPilePosition = new Vector2(630, 460);
+    public Vector2 handPilePosition = new Vector2(630, 460);
     [Export]
-    public Vector2 DiscardPilePosition = new Vector2(1250, 460);
+    public Vector2 discardPilePosition = new Vector2(1250, 460);
 
     [ExportGroup("Pile Displays")]
     [Export]
-    public int StackDisplayGap = 8;
+    public int stackDisplayGap = 8;
     [Export]
-    public int MaxStackDisplay = 6;
+    public int maxStackDisplay = 6;
 
     [ExportGroup("Cards")]
     [Export]
-    public float CardReturnSpeed = 0.15f;
+    public float cardReturnSpeed = 0.15f;
 
     [ExportGroup("Draw Pile")]
     [Export]
-    public bool ClickDrawPileToDraw = true;
+    public bool clickDrawPileToDraw = true;
     [Export]
-    public bool CantDrawAtHandLimit = true;
+    public bool cantDrawAtHandLimit = true;
     [Export]
-    public bool ShuffleDiscardOnEmptyDraw = true;
+    public bool shuffleDiscardOnEmptyDraw = true;
     [Export]
-    public PilesCardLayouts DrawPileLayout = PilesCardLayouts.Up;
+    public PilesCardLayouts drawPileLayout = PilesCardLayouts.Up;
 
     [ExportGroup("Hand Pile")]
     [Export]
-    public bool HandEnabled = true;
+    public bool handEnabled = true;
     [Export]
-    public bool HandFaceUp = true;
+    public bool handFaceUp = true;
     [Export]
-    public int MaxHandSize = 10;
+    public int maxHandSize = 10;
     [Export]
-    public int MaxHandSpread = 700;
+    public int maxHandSpread = 700;
     [Export]
-    public int CardUiHoverDistance = 30;
+    public int cardUIHoverDistance = 30;
     [Export]
-    public bool DragWhenClicked = true;
+    public bool dragWhenClicked = true;
     [Export]
-    public Curve HandRotationCurve;
+    public Curve handRotationCurve;
     [Export]
-    public Curve HandVerticalCurve;
+    public Curve handVerticalCurve;
 
     [ExportGroup("Discard Pile")]
     [Export]
-    public bool DiscardFaceUp = true;
+    public bool discardFaceUp = true;
     [Export]
-    public PilesCardLayouts DiscardPileLayout = PilesCardLayouts.Up;
+    public PilesCardLayouts discardPileLayout = PilesCardLayouts.Up;
 
     /// <summary>
-    /// Save the base data (name, description, damage etc.) of all cards
+    /// Save the base data of all cards
     /// </summary>
-    private Array<Dictionary> cardDatabase = new Array<Dictionary>();
+    protected Array<Dictionary> cardDatabase = new Array<Dictionary>();
 
     /// <summary>
-    /// Save the names of present cards
+    /// Save the names of present cards (i.e. the deck) for indexing
     /// </summary>
-    private Array<string> cardCollection = new Array<string>();
+    protected Array<string> cardCollection = new Array<string>();
 
-    private Array<Card> _drawPile = new Array<Card>();
-    private Array<Card> _handPile = new Array<Card>();
-    private Array<Card> _discardPile = new Array<Card>();
+    protected Array<Card> _drawPile = new Array<Card>();
+    protected Array<Card> _handPile = new Array<Card>();
+    protected Array<Card> _discardPile = new Array<Card>();
 
-    private Curve spreadCurve = new Curve();
+    /// <summary>
+    /// Show curve when player drags a card
+    /// </summary>
+    protected Curve spreadCurve = new Curve();
 
     public override void _Ready()
     {
+        base._Ready();
+
         Size = Vector2.Zero;
         spreadCurve.AddPoint(new Vector2(0, -1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
         spreadCurve.AddPoint(new Vector2(1, 1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
@@ -128,22 +119,22 @@ public partial class SimpleCardPileManager : Control
         ResetTargetPositions();
     }
 
-    public void SetCardPile(Card card, Piles pile)
+    public void SetCardPile(Card card, PilesType pile)
     {
         MaybeRemoveCardFromAnyPiles(card);
         MaybeRemoveCardFromAnyDropzones(card);
 
-        if (pile == Piles.DiscardPile)
+        if (pile == PilesType.DiscardPile)
         {
             _discardPile.Add(card);
             EmitSignal(nameof(DiscardPileUpdated));
         }
-        else if (pile == Piles.HandPile)
+        else if (pile == PilesType.HandPile)
         {
             _handPile.Add(card);
             EmitSignal(nameof(HandPileUpdated));
         }
-        else if (pile == Piles.DrawPile)
+        else if (pile == PilesType.DrawPile)
         {
             _drawPile.Add(card);
             EmitSignal(nameof(DrawPileUpdated));
@@ -152,58 +143,54 @@ public partial class SimpleCardPileManager : Control
         ResetTargetPositions();
     }
 
-    public void SetCardDropzone(Card card, CardDropzone dropzone)
+    public override void SetCardDropzone(Card card, CardDropzone dropzone)
     {
         MaybeRemoveCardFromAnyPiles(card);
-        MaybeRemoveCardFromAnyDropzones(card);
-        dropzone.AddCard(card);
-        EmitSignal(nameof(CardAddedToDropzone), dropzone, card);
-        ResetTargetPositions();
+
+        base.SetCardDropzone(card, dropzone);
     }
 
-    private void RemoveCardFromGame(Card card)
+    public override void RemoveCardFromGame(Card card)
     {
         MaybeRemoveCardFromAnyPiles(card);
-        MaybeRemoveCardFromAnyDropzones(card);
-        EmitSignal(nameof(CardRemovedFromGame), card);
-        card.QueueFree();
-        ResetTargetPositions();
+
+        base.RemoveCardFromGame(card);
     }
 
-    public Array<Card> GetCardsInPile(Piles pile)
+    public Array<Card> GetCardsInPile(PilesType pile)
     {
-        if (pile == Piles.DiscardPile)
+        if (pile == PilesType.DiscardPile)
             return [.. _discardPile];
-        if (pile == Piles.HandPile)
+        if (pile == PilesType.HandPile)
             return [.. _handPile];
-        if (pile == Piles.DrawPile)
+        if (pile == PilesType.DrawPile)
             return [.. _drawPile];
 
         return new Array<Card>();
     }
 
-    public Card GetCardInPileAt(Piles pile, int index)
+    public Card GetCardInPileAt(PilesType pile, int index)
     {
-        if (pile == Piles.DiscardPile && _discardPile.Count > index)
+        if (pile == PilesType.DiscardPile && _discardPile.Count > index)
             return _discardPile[index];
-        if (pile == Piles.DrawPile && _drawPile.Count > index)
+        if (pile == PilesType.DrawPile && _drawPile.Count > index)
             return _drawPile[index];
-        if (pile == Piles.HandPile && _handPile.Count > index)
+        if (pile == PilesType.HandPile && _handPile.Count > index)
             return _handPile[index];
         return null;
     }
 
-    public int GetCardPileSize(Piles piles){
-        if (piles == Piles.DiscardPile)
+    public int GetCardPileSize(PilesType piles){
+        if (piles == PilesType.DiscardPile)
             return _discardPile.Count;
-        if (piles == Piles.HandPile)
+        if (piles == PilesType.HandPile)
             return _handPile.Count;
-        if (piles == Piles.DrawPile)
+        if (piles == PilesType.DrawPile)
             return _drawPile.Count;
         return 0;
     }
 
-    private void MaybeRemoveCardFromAnyPiles(Card card)
+    protected void MaybeRemoveCardFromAnyPiles(Card card)
     {
         if (_handPile.Contains(card))
         {
@@ -222,63 +209,22 @@ public partial class SimpleCardPileManager : Control
         }
     }
 
-    private void CreateCardInDropzone(string niceName, CardDropzone dropzone)
+    protected void CreateCardInPile(string niceName, PilesType pileToAddTo)
     {
-        var cardUi = CreateCardUI(GetCardDataByNiceName(niceName));
-        cardUi.Position = dropzone.Position;
-        SetCardDropzone(cardUi, dropzone);
-    }
-
-    private void CreateCardInPile(string niceName, Piles pileToAddTo)
-    {
-        var cardUi = CreateCardUI(GetCardDataByNiceName(niceName));
-        if (pileToAddTo == Piles.HandPile)
-            cardUi.Position = HandPilePosition;
-        else if (pileToAddTo == Piles.DiscardPile)
-            cardUi.Position = DiscardPilePosition;
-        else if (pileToAddTo == Piles.DrawPile)
-            cardUi.Position = DrawPilePosition;
+        var cardUi = CreateCardFromJson(GetCardDataByNiceName(niceName));
+        if (pileToAddTo == PilesType.HandPile)
+            cardUi.Position = handPilePosition;
+        else if (pileToAddTo == PilesType.DiscardPile)
+            cardUi.Position = discardPilePosition;
+        else if (pileToAddTo == PilesType.DrawPile)
+            cardUi.Position = drawPilePosition;
         SetCardPile(cardUi, pileToAddTo);
     }
 
-    private void MaybeRemoveCardFromAnyDropzones(Card card)
-    {
-        var allDropzones = new Array<CardDropzone>();
-        GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
-        foreach (var dropzone in allDropzones)
-        {
-            if (dropzone.IsHolding(card))
-            {
-                dropzone.RemoveCard(card);
-                EmitSignal(nameof(CardRemovedFromDropzone), dropzone, card);
-            }
-        }
-    }
-
-    public CardDropzone GetCardDropzone(Card card)
-    {
-        var allDropzones = new Array<CardDropzone>();
-        GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
-        foreach (var dropzone in allDropzones)
-        {
-            if (dropzone.IsHolding(card))
-                return dropzone;
-        }
-        return null;
-    }
-
-    private void GetDropzones(Node node, string className, Array<CardDropzone> result)
-    {
-        if (node is CardDropzone dropzone)
-            result.Add(dropzone);
-        foreach (Node child in node.GetChildren())
-            GetDropzones(child, className, result);
-    }
-
-    private void LoadJsonFiles()
+    protected void LoadJsonFiles()
     {   
-        cardDatabase = JsonUtils.LoadJsonAs<Array<Dictionary>>(JsonCardDatabasePath);
-        cardCollection = JsonUtils.LoadJsonAs<Array<string>>(JsonCardCollectionPath);
+        cardDatabase = JsonUtils.LoadJsonAs<Array<Dictionary>>(cardDatabasePath);
+        cardCollection = JsonUtils.LoadJsonAs<Array<string>>(cardCollectionPath);
     }
 
 
@@ -287,7 +233,7 @@ public partial class SimpleCardPileManager : Control
         ResetCardCollection();
     }
 
-    private void ResetCardCollection()
+    protected void ResetCardCollection()
     {
         foreach (Node child in GetChildren())
         {
@@ -298,7 +244,7 @@ public partial class SimpleCardPileManager : Control
         foreach (var niceName in cardCollection)
         {
             var cardData = GetCardDataByNiceName(niceName);
-            var cardUi = CreateCardUI(cardData);
+            var cardUi = CreateCardFromJson(cardData);
             _drawPile.Add(cardUi);
             _drawPile.Shuffle();
         }
@@ -308,32 +254,32 @@ public partial class SimpleCardPileManager : Control
         EmitSignal(nameof(DiscardPileUpdated));
     }
 
-    private void ResetTargetPositions()
+    protected override void ResetTargetPositions()
     {
         SetDrawPileTargetPositions();
         SetHandPileTargetPositions();
         SetDiscardPileTargetPositions();
     }
 
-    private void SetDrawPileTargetPositions(bool instantlyMove = false)
+    protected void SetDrawPileTargetPositions(bool instantlyMove = false)
     {
         for (int i = 0; i < _drawPile.Count; i++)
         {
             var cardUi = _drawPile[i];
-            var targetPos = DrawPilePosition;
-            switch (DrawPileLayout)
+            var targetPos = drawPilePosition;
+            switch (drawPileLayout)
             {
                 case PilesCardLayouts.Up:
-                    targetPos.Y -= i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.Y -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
                 case PilesCardLayouts.Down:
-                    targetPos.Y += i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.Y += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
                 case PilesCardLayouts.Right:
-                    targetPos.X += i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.X += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
                 case PilesCardLayouts.Left:
-                    targetPos.X -= i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.X -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
             }
             cardUi.ZIndex = i;
@@ -345,57 +291,57 @@ public partial class SimpleCardPileManager : Control
         }
     }
 
-    private void SetHandPileTargetPositions()
+    protected void SetHandPileTargetPositions()
     {
         for (int i = 0; i < _handPile.Count; i++)
         {
             var cardUi = _handPile[i];
             cardUi.MoveToFront();
             var handRatio = _handPile.Count > 1 ? (float)i / (_handPile.Count - 1) : 0.5f;
-            var targetPos = HandPilePosition;
-            var cardSpacing = MaxHandSpread / (_handPile.Count + 1);
-            targetPos.X += (i + 1) * cardSpacing - MaxHandSpread / 2.0f;
-            if (HandVerticalCurve != null)
-                targetPos.Y -= HandVerticalCurve.SampleBaked(handRatio);
-            if (HandRotationCurve != null)
-                cardUi.Rotation = Mathf.DegToRad(HandRotationCurve.SampleBaked(handRatio));
-            cardUi.SetDirection(HandFaceUp ? Vector2.Up : Vector2.Down);
+            var targetPos = handPilePosition;
+            var cardSpacing = maxHandSpread / (_handPile.Count + 1);
+            targetPos.X += (i + 1) * cardSpacing - maxHandSpread / 2.0f;
+            if (handVerticalCurve != null)
+                targetPos.Y -= handVerticalCurve.SampleBaked(handRatio);
+            if (handRotationCurve != null)
+                cardUi.Rotation = Mathf.DegToRad(handRotationCurve.SampleBaked(handRatio));
+            cardUi.SetDirection(handFaceUp ? Vector2.Up : Vector2.Down);
             cardUi.targetPosition = targetPos;
         }
-        while (_handPile.Count > MaxHandSize)
-            SetCardPile(_handPile[_handPile.Count - 1], Piles.DiscardPile);
+        while (_handPile.Count > maxHandSize)
+            SetCardPile(_handPile[_handPile.Count - 1], PilesType.DiscardPile);
         ResetHandPileZIndex();
     }
 
-    private void SetDiscardPileTargetPositions()
+    protected void SetDiscardPileTargetPositions()
     {
         for (int i = 0; i < _discardPile.Count; i++)
         {
             var cardUi = _discardPile[i];
-            var targetPos = DiscardPilePosition;
-            switch (DiscardPileLayout)
+            var targetPos = discardPilePosition;
+            switch (discardPileLayout)
             {
                 case PilesCardLayouts.Up:
-                    targetPos.Y -= i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.Y -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
                 case PilesCardLayouts.Down:
-                    targetPos.Y += i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.Y += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
                 case PilesCardLayouts.Right:
-                    targetPos.X += i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.X += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
                 case PilesCardLayouts.Left:
-                    targetPos.X -= i <= MaxStackDisplay ? i * StackDisplayGap : StackDisplayGap * MaxStackDisplay;
+                    targetPos.X -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
             }
-            cardUi.SetDirection(DiscardFaceUp ? Vector2.Up : Vector2.Down);
+            cardUi.SetDirection(discardFaceUp ? Vector2.Up : Vector2.Down);
             cardUi.ZIndex = i;
             cardUi.Rotation = 0;
             cardUi.targetPosition = targetPos;
         }
     }
 
-    public void ResetCardUiZIndex()
+    public void ResetCardsZIndex()
     {
         for (int i = 0; i < _drawPile.Count; i++)
             _drawPile[i].ZIndex = i;
@@ -404,7 +350,7 @@ public partial class SimpleCardPileManager : Control
         ResetHandPileZIndex();
     }
 
-    private void ResetHandPileZIndex()
+    protected void ResetHandPileZIndex()
     {
         for (int i = 0; i < _handPile.Count; i++)
         {
@@ -447,27 +393,27 @@ public partial class SimpleCardPileManager : Control
     {
         for (int i = 0; i < numCards; i++)
         {
-            if (_handPile.Count >= MaxHandSize && CantDrawAtHandLimit)
+            if (_handPile.Count >= maxHandSize && cantDrawAtHandLimit)
                 continue;
             if (_drawPile.Count > 0)
             {
-                SetCardPile(_drawPile[_drawPile.Count - 1], Piles.HandPile);
+                SetCardPile(_drawPile[_drawPile.Count - 1], PilesType.HandPile);
             }
-            else if (ShuffleDiscardOnEmptyDraw && _discardPile.Count > 0)
+            else if (shuffleDiscardOnEmptyDraw && _discardPile.Count > 0)
             {
                 var dupeDiscard = new Array<Card>(_discardPile);
                 foreach (var c in dupeDiscard)
-                    SetCardPile(c, Piles.DrawPile);
+                    SetCardPile(c, PilesType.DrawPile);
                 _drawPile.Shuffle();
-                SetCardPile(_drawPile[_drawPile.Count - 1], Piles.HandPile);
+                SetCardPile(_drawPile[_drawPile.Count - 1], PilesType.HandPile);
             }
         }
         ResetTargetPositions();
     }
 
-    public bool HandIsAtMaxCapacity()
+    public bool IsHandFull()
     {
-        return _handPile.Count >= MaxHandSize;
+        return _handPile.Count >= maxHandSize;
     }
 
     public void SortHand(Func<Card, Card> sortFunc)
@@ -476,31 +422,28 @@ public partial class SimpleCardPileManager : Control
         ResetTargetPositions();
     }
 
-    private Card CreateCardUI(Dictionary jsonData)
+    protected Card CreateCardFromJson(Dictionary jsonData)
     {
-        var cardUi = ExtendedCardUI.Instantiate<Card>();
         
         // Card data initialilzation
         var script = (CSharpScript)ResourceLoader.Load(jsonData["resource_script_path"].As<string>());
         var cardData = script.New().As<CardData>();
         cardData.LoadProperties(jsonData);
+
+        var cardUi = CreateCard(cardData);
         
-        // UI initialization
-        cardUi.cardData = cardData;
-        cardUi.UpdateDisplay();
-        cardUi.SetControlParameters(CardReturnSpeed, CardUiHoverDistance, DragWhenClicked);
+        cardUi.SetControlParameters(cardReturnSpeed, cardUIHoverDistance, dragWhenClicked);
 
-        // Connect signals
-        cardUi.CardHovered += OnCardHovered;
-        cardUi.CardUnhovered += OnCardUnhovered;
-        cardUi.CardClicked += OnCardClicked;
-        cardUi.CardDropped += OnCardDropped;
-
-        AddChild(cardUi);
         return cardUi;
     }
 
-    private Dictionary GetCardDataByNiceName(string niceName)
+    protected void CreateCardInPile(CardData cardData, PilesType pile)
+    {
+        var cardUi = CreateCard(cardData);
+        SetCardPile(cardUi, pile);
+    }
+
+    protected Dictionary GetCardDataByNiceName(string niceName)
     {
         foreach (var jsonData in cardDatabase)
         {
@@ -510,8 +453,5 @@ public partial class SimpleCardPileManager : Control
         return null;
     }
 
-    private void OnCardHovered(Card cardUi) => EmitSignal(nameof(CardHovered), cardUi);
-    private void OnCardUnhovered(Card cardUi) => EmitSignal(nameof(CardUnhovered), cardUi);
-    private void OnCardClicked(Card cardUi) => EmitSignal(nameof(CardClicked), cardUi);
-    private void OnCardDropped(Card cardUi) => EmitSignal(nameof(CardDropped), cardUi);
+    
 }

@@ -51,7 +51,7 @@ public partial class Enemy : CardDropzone
         GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
         HP -= data.value;
 
-        cardPileManager.SetCardPile(cardUi, SimpleCardPileManager.PilesType.DiscardPile);
+        cardPileManager.SetCardPile(cardUi, CardDropzone.PilesType.DiscardPile);
 
         UpdateDisplay();
     }

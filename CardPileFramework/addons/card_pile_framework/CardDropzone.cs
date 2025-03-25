@@ -15,23 +15,44 @@ public partial class CardDropzone : Control
     public bool cardUIFaceUp = true;
     [Export]
     public bool canDragTopCard = true;
-    [Export]
-    public bool heldCardDirection = true;
+    // [Export] public bool heldCardDirection = true;
     public bool mouseIsHovering = false;
-    [Export]
-    public SimpleCardPileManager.PilesCardLayouts layout = SimpleCardPileManager.PilesCardLayouts.Up;
 
-    private Array<Card> _heldCards = new Array<Card>();
+    public enum PilesType
+    {
+        DrawPile,
+        HandPile,
+        DiscardPile,
+        Dropzone
+    }
+
+    public enum PilesCardLayouts
+    {
+        Up,
+        Left,
+        Right,
+        Down
+    }
+
+    [Export]
+    public PilesCardLayouts layout = PilesCardLayouts.Up;
+
+    [Export]
+    public PilesType pilesType = PilesType.Dropzone;
+
+    protected Array<Card> _heldCards = new Array<Card>();
 
 
     public override void _Ready(){
+        // _heldCards = new Array<Card>();
+
         MouseEntered += OnMouseEntered;
         MouseExited += OnMouseExited;
     }
 
     public override void _Process(double delta)
     {
-        UpdateTargetPositions();
+        UpdateCardsTargetPositions();
 
         // Check mouse event
         var tmp = GetGlobalRect().HasPoint(GetGlobalMousePosition());
@@ -112,7 +133,7 @@ public partial class CardDropzone : Control
         // UpdateTargetPositions();
     }
 
-    private void UpdateTargetPositions()
+    public void UpdateCardsTargetPositions(bool instantlyMove = false)
     {
         for (int i = 0; i < _heldCards.Count; i++)
         {
@@ -120,23 +141,32 @@ public partial class CardDropzone : Control
             var targetPos = Position;
             switch (layout)
             {
-                case SimpleCardPileManager.PilesCardLayouts.Up:
+                case PilesCardLayouts.Up:
                     targetPos.Y -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
-                case SimpleCardPileManager.PilesCardLayouts.Down:
+                case PilesCardLayouts.Down:
                     targetPos.Y += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
-                case SimpleCardPileManager.PilesCardLayouts.Right:
+                case PilesCardLayouts.Right:
                     targetPos.X += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
-                case SimpleCardPileManager.PilesCardLayouts.Left:
+                case PilesCardLayouts.Left:
                     targetPos.X -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
                     break;
             }
             cardUi.SetDirection(cardUIFaceUp ? Vector2.Up : Vector2.Down);
-            cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
+            // cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
             cardUi.MoveToFront(); // must also do this to account for INVISIBLE INTERACTION ORDER
             cardUi.targetPosition = targetPos;
+            if(instantlyMove) cardUi.Position = targetPos;
+        }
+    }
+
+    public void UpdateCardsZIndex(){
+        for (int i = 0; i < _heldCards.Count; i++)
+        {
+            var cardUi = _heldCards[i];
+            cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
         }
     }
 

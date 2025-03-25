@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b51mnai4agdp1"]
+[gd_scene load_steps=15 format=3 uid="uid://b51mnai4agdp1"]
 
 [ext_resource type="Script" uid="uid://dj8kvmy8rhk61" path="res://examples/card_battle/CardBattle.cs" id="1_k583c"]
 [ext_resource type="Script" uid="uid://duprfng4b07u1" path="res://examples/card_battle/Enemy.cs" id="2_66fgq"]
@@ -8,8 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bws1g7ruy6xpl" path="res://examples/card_battle/assets/circle.png" id="4_q5k3w"]
 [ext_resource type="Script" uid="uid://bj4pqqa6y5rie" path="res://examples/card_battle/MyCardPileManager.cs" id="5_htl6c"]
 [ext_resource type="PackedScene" uid="uid://dqr42gfvtct60" path="res://examples/card_battle/my_card.tscn" id="6_42g6k"]
-[ext_resource type="Curve" uid="uid://bgc87714i054f" path="res://examples/card_battle/resources/hand_rotation_curve.tres" id="7_6x3j2"]
-[ext_resource type="Curve" uid="uid://cfnyg5iqs54fi" path="res://examples/card_battle/resources/hand_vertical_curve.tres" id="8_1ass8"]
+[ext_resource type="Script" uid="uid://vdfxwio6bk6q" path="res://addons/card_pile_framework/CardDropzone.cs" id="8_6x3j2"]
 [ext_resource type="Curve" uid="uid://ixk072erbhwm" path="res://examples/card_battle/resources/targeting_line_curve.tres" id="11_1ass8"]
 
 [sub_resource type="Gradient" id="Gradient_42g6k"]
@@ -26,7 +25,7 @@ font_size = 24
 
 [node name="CardBattle" type="Node2D" node_paths=PackedStringArray("cardPileManager", "energyLabel", "shieldLabel", "endTurnButton", "descriptionPanel", "descriptionLabel", "targetingLine")]
 script = ExtResource("1_k583c")
-cardPileManager = NodePath("MyCardPile")
+cardPileManager = NodePath("MyCardPileManager")
 energyLabel = NodePath("Status/Energy/Label")
 shieldLabel = NodePath("Status/Shield/Label")
 endTurnButton = NodePath("Status/Button")
@@ -37,28 +36,28 @@ targetingLine = NodePath("TargetingLine")
 [node name="Dropzones" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 401.0
-offset_top = 57.0
-offset_right = 441.0
-offset_bottom = 97.0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="Background" type="TextureRect" parent="Dropzones"]
 layout_mode = 0
-offset_right = 800.0
-offset_bottom = 400.0
+offset_left = 390.0
+offset_top = 70.0
+offset_right = 1190.0
+offset_bottom = 470.0
 texture = SubResource("GradientTexture1D_htl6c")
 
 [node name="Enemy0" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "cardPileManager")]
 anchors_preset = 0
-offset_left = 155.0
-offset_top = 118.0
-offset_right = 255.0
-offset_bottom = 268.0
+offset_left = 545.0
+offset_top = 188.0
+offset_right = 645.0
+offset_bottom = 338.0
 mouse_filter = 2
 script = ExtResource("2_66fgq")
 HPLabel = NodePath("HP")
 portrait = NodePath("TextureRect")
-cardPileManager = NodePath("../../MyCardPile")
+cardPileManager = NodePath("../../MyCardPileManager")
 
 [node name="TextureRect" type="TextureRect" parent="Dropzones/Enemy0"]
 layout_mode = 0
@@ -87,15 +86,15 @@ text = "50/50"
 [node name="Enemy1" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "cardPileManager")]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 442.0
-offset_top = 118.0
-offset_right = 542.0
-offset_bottom = 268.0
+offset_left = 832.0
+offset_top = 188.0
+offset_right = 932.0
+offset_bottom = 338.0
 mouse_filter = 2
 script = ExtResource("2_66fgq")
 HPLabel = NodePath("HP")
 portrait = NodePath("TextureRect")
-cardPileManager = NodePath("../../MyCardPile")
+cardPileManager = NodePath("../../MyCardPileManager")
 
 [node name="TextureRect" type="TextureRect" parent="Dropzones/Enemy1"]
 layout_mode = 0
@@ -123,12 +122,38 @@ text = "50/50"
 
 [node name="SkillZone" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
 anchors_preset = 0
-offset_right = 800.0
-offset_bottom = 400.0
+offset_left = 390.0
+offset_top = 70.0
+offset_right = 1190.0
+offset_bottom = 470.0
 script = ExtResource("4_42g6k")
-cardPileManager = NodePath("../../MyCardPile")
+cardPileManager = NodePath("../../MyCardPileManager")
 
-[node name="MyCardPile" type="Control" parent="."]
+[node name="DrawPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 672.0
+offset_right = 116.0
+offset_bottom = 712.0
+script = ExtResource("8_6x3j2")
+cardPileManager = NodePath("../../MyCardPileManager")
+cardUIFaceUp = false
+canDragTopCard = false
+pilesType = 0
+
+[node name="DiscardPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1390.0
+offset_top = 672.0
+offset_right = 1430.0
+offset_bottom = 712.0
+script = ExtResource("8_6x3j2")
+cardPileManager = NodePath("../../MyCardPileManager")
+canDragTopCard = false
+pilesType = 2
+
+[node name="MyCardPileManager" type="Control" parent="." node_paths=PackedStringArray("drawPile", "discardPile")]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
@@ -136,12 +161,9 @@ offset_bottom = 40.0
 script = ExtResource("5_htl6c")
 cardDatabasePath = "res://examples/card_battle/card_data/example_card_database.json"
 cardCollectionPath = "res://examples/card_battle/card_data/example_card_collection.json"
-drawPilePosition = Vector2(20, 600)
-handPilePosition = Vector2(630, 600)
-discardPilePosition = Vector2(1250, 600)
+drawPile = NodePath("../Dropzones/DrawPile")
+discardPile = NodePath("../Dropzones/DiscardPile")
 dragWhenClicked = false
-handRotationCurve = ExtResource("7_6x3j2")
-handVerticalCurve = ExtResource("8_1ass8")
 cardUIPrefab = ExtResource("6_42g6k")
 
 [node name="Status" type="Control" parent="."]

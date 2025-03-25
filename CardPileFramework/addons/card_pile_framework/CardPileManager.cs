@@ -79,6 +79,7 @@ public partial class CardPileManager : Control
     {
        
         MaybeRemoveCardFromAnyDropzones(card);
+
         EmitSignal(nameof(CardRemovedFromGame), card);
         card.QueueFree();
 
@@ -109,8 +110,9 @@ public partial class CardPileManager : Control
         GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
         foreach (var dropzone in allDropzones)
         {
-            if (dropzone.IsHolding(card))
+            if (dropzone.pilesType == CardDropzone.PilesType.Dropzone && dropzone.IsHolding(card))
             {
+                GD.Print(card.Name);
                 dropzone.RemoveCard(card);
                 EmitSignal(nameof(CardRemovedFromDropzone), dropzone, card);
             }
@@ -142,8 +144,11 @@ public partial class CardPileManager : Control
     /// <param name="result"></param>
     protected void GetDropzones(Node node, string className, Array<CardDropzone> result)
     {
-        if (node is CardDropzone dropzone)
-            result.Add(dropzone);
+        if (node is CardDropzone dropzone){
+            if(dropzone.pilesType == CardDropzone.PilesType.Dropzone)
+                result.Add(dropzone);
+        }
+            
         foreach (Node child in node.GetChildren())
             GetDropzones(child, className, result);
     }

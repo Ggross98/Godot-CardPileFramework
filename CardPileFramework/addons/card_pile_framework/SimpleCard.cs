@@ -79,9 +79,9 @@ public partial class SimpleCard : Card
                 }
 
                 // Click the draw pile to draw a card.
-                if (manager.GetCardPileSize(SimpleCardPileManager.PilesType.DrawPile) > 0 && 
+                if (manager.GetCardPileSize(CardDropzone.PilesType.DrawPile) > 0 && 
                         manager.handEnabled &&
-                        manager.GetCardsInPile(SimpleCardPileManager.PilesType.DrawPile).Contains(this) && 
+                        manager.GetCardsInPile(CardDropzone.PilesType.DrawPile).Contains(this) && 
                         !manager.IsAnyCardUiClicked() && 
                         manager.clickDrawPileToDraw)
                 {

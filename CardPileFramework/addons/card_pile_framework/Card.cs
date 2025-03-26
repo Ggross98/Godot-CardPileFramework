@@ -125,11 +125,13 @@ public partial class Card : Control
 
     protected virtual void OnMouseEntered()
     {
+        GD.Print("Mouse entered " + Name);
         if (IsInteractable())
         {
+            GD.Print("Card is interactable " + Name);
             mouseIsHovering = true;
             targetPosition.Y -= hoverDistance;
-            EmitSignal(nameof(CardHovered), this);
+            EmitSignal(SignalName.CardHovered, this);
         }
     }
 
@@ -140,7 +142,7 @@ public partial class Card : Control
         {
             mouseIsHovering = false;
             targetPosition.Y += hoverDistance;
-            EmitSignal(nameof(CardUnhovered), this);
+            EmitSignal(SignalName.CardUnhovered, this);
         }
     }
 
@@ -155,7 +157,7 @@ public partial class Card : Control
                 {
                     isClicked = true;
                     Rotation = 0;
-                    EmitSignal(nameof(CardClicked), this);
+                    EmitSignal(SignalName.CardClicked, this);
                 }
             }
             else
@@ -181,8 +183,8 @@ public partial class Card : Control
                         }
                     }
 
-                    EmitSignal(nameof(CardDropped), this);
-                    EmitSignal(nameof(CardUnhovered), this);
+                    EmitSignal(SignalName.CardDropped, this);
+                    EmitSignal(SignalName.CardUnhovered, this);
                 }
             }
         }

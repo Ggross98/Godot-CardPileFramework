@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b51mnai4agdp1"]
+[gd_scene load_steps=18 format=3 uid="uid://b51mnai4agdp1"]
 
 [ext_resource type="Script" uid="uid://dj8kvmy8rhk61" path="res://examples/card_battle/CardBattle.cs" id="1_k583c"]
 [ext_resource type="Script" uid="uid://duprfng4b07u1" path="res://examples/card_battle/Enemy.cs" id="2_66fgq"]
@@ -8,7 +8,10 @@
 [ext_resource type="Texture2D" uid="uid://bws1g7ruy6xpl" path="res://examples/card_battle/assets/circle.png" id="4_q5k3w"]
 [ext_resource type="Script" uid="uid://bj4pqqa6y5rie" path="res://examples/card_battle/MyCardPileManager.cs" id="5_htl6c"]
 [ext_resource type="PackedScene" uid="uid://dqr42gfvtct60" path="res://examples/card_battle/my_card.tscn" id="6_42g6k"]
-[ext_resource type="Script" uid="uid://vdfxwio6bk6q" path="res://addons/card_pile_framework/CardDropzone.cs" id="8_6x3j2"]
+[ext_resource type="Script" uid="uid://md6nbxmxr7fa" path="res://addons/card_pile_framework/CardPile.cs" id="6_thior"]
+[ext_resource type="Script" uid="uid://byaswfpj4d1oc" path="res://addons/card_pile_framework/CardHand.cs" id="7_78uiv"]
+[ext_resource type="Curve" uid="uid://bgc87714i054f" path="res://examples/card_battle/resources/hand_rotation_curve.tres" id="8_cv6ll"]
+[ext_resource type="Curve" uid="uid://cfnyg5iqs54fi" path="res://examples/card_battle/resources/hand_vertical_curve.tres" id="9_cxrpw"]
 [ext_resource type="Curve" uid="uid://ixk072erbhwm" path="res://examples/card_battle/resources/targeting_line_curve.tres" id="11_1ass8"]
 
 [sub_resource type="Gradient" id="Gradient_42g6k"]
@@ -45,6 +48,7 @@ offset_left = 390.0
 offset_top = 70.0
 offset_right = 1190.0
 offset_bottom = 470.0
+mouse_filter = 2
 texture = SubResource("GradientTexture1D_htl6c")
 
 [node name="Enemy0" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "cardPileManager")]
@@ -126,44 +130,60 @@ offset_left = 390.0
 offset_top = 70.0
 offset_right = 1190.0
 offset_bottom = 470.0
+mouse_filter = 2
 script = ExtResource("4_42g6k")
 cardPileManager = NodePath("../../MyCardPileManager")
 
 [node name="DrawPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
 anchors_preset = 0
-offset_left = 76.0
-offset_top = 672.0
-offset_right = 116.0
-offset_bottom = 712.0
-script = ExtResource("8_6x3j2")
-cardPileManager = NodePath("../../MyCardPileManager")
+offset_left = 31.0
+offset_top = 634.0
+offset_right = 31.0
+offset_bottom = 634.0
+mouse_filter = 2
+script = ExtResource("6_thior")
 cardUIFaceUp = false
 canDragTopCard = false
+cardPileManager = NodePath("../../MyCardPileManager")
 pilesType = 0
 
 [node name="DiscardPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 1390.0
-offset_top = 672.0
-offset_right = 1430.0
-offset_bottom = 712.0
-script = ExtResource("8_6x3j2")
-cardPileManager = NodePath("../../MyCardPileManager")
+offset_left = 1401.0
+offset_top = 625.0
+offset_right = 1401.0
+offset_bottom = 625.0
+mouse_filter = 2
+script = ExtResource("6_thior")
 canDragTopCard = false
+cardPileManager = NodePath("../../MyCardPileManager")
 pilesType = 2
 
-[node name="MyCardPileManager" type="Control" parent="." node_paths=PackedStringArray("drawPile", "discardPile")]
+[node name="Hand" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
+anchors_preset = 0
+offset_left = 797.0
+offset_top = 630.0
+offset_right = 797.0
+offset_bottom = 630.0
+mouse_filter = 2
+script = ExtResource("7_78uiv")
+handRotationCurve = ExtResource("8_cv6ll")
+handVerticalCurve = ExtResource("9_cxrpw")
+cardPileManager = NodePath("../../MyCardPileManager")
+
+[node name="MyCardPileManager" type="Control" parent="." node_paths=PackedStringArray("drawPile", "discardPile", "handPile")]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 1
 script = ExtResource("5_htl6c")
 cardDatabasePath = "res://examples/card_battle/card_data/example_card_database.json"
 cardCollectionPath = "res://examples/card_battle/card_data/example_card_collection.json"
 drawPile = NodePath("../Dropzones/DrawPile")
 discardPile = NodePath("../Dropzones/DiscardPile")
-dragWhenClicked = false
+handPile = NodePath("../Dropzones/Hand")
 cardUIPrefab = ExtResource("6_42g6k")
 
 [node name="Status" type="Control" parent="."]

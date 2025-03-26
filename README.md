@@ -1,6 +1,7 @@
 # Godot Card Pile Framework
 A card game framework for Godot with C#.  
 Developed and tested on Godot 4.4 with .Net 8.0.  
+**This repository is in rapid iteration. The project may undergo significant refactoring.**
 ## Overview
 There are several card-game framework/plugins available for Godot developers. However, similar work for developers who prefer to use C# is still in urgent need. Inspired by [simple-card-pile-ui](https://github.com/insideout-andrew/simple-card-pile-ui) and [card-framework](https://github.com/chun92/card-framework), this repository provides a lightweight framework using C#. You can use this framework to build a typical card-game (e.g., TCG and deck-building games) in few minutes.   
 

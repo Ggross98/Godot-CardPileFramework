@@ -27,6 +27,9 @@ outline_size = 4
 [node name="MyCard" type="Control" node_paths=PackedStringArray("nameLabel", "typeLabel", "costLabel", "image", "frontface", "backface")]
 layout_mode = 3
 anchors_preset = 0
+offset_right = 168.0
+offset_bottom = 240.0
+mouse_filter = 1
 script = ExtResource("1_5c0nu")
 nameLabel = NodePath("Frontface/Name")
 typeLabel = NodePath("Frontface/Type")

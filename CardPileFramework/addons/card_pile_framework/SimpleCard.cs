@@ -36,14 +36,14 @@ public partial class SimpleCard : Card
         // In hand pile
         if (manager.IsCardInHand(this))
         {
-            valid = manager.handEnabled && !manager.IsAnyCardUiClicked();
+            valid = !manager.IsAnyCardClicked();
         }
         // In any dropzone
         else{
             var dropzone = manager.GetCardDropzone(this);
             if (dropzone != null)
             {
-                valid = dropzone.GetTopCard() == this && !manager.IsAnyCardUiClicked();
+                valid = dropzone.GetTopCard() == this && !manager.IsAnyCardClicked();
             }
         }
 
@@ -79,10 +79,10 @@ public partial class SimpleCard : Card
                 }
 
                 // Click the draw pile to draw a card.
-                if (manager.GetCardPileSize(CardDropzone.PilesType.DrawPile) > 0 && 
-                        manager.handEnabled &&
-                        manager.GetCardsInPile(CardDropzone.PilesType.DrawPile).Contains(this) && 
-                        !manager.IsAnyCardUiClicked() && 
+                if (manager.GetCardPileSize(CardDropzone.DropzoneType.DrawPile) > 0 && 
+                        manager.IsPileEnabled(CardDropzone.DropzoneType.HandPile) &&
+                        manager.GetCardsInPile(CardDropzone.DropzoneType.DrawPile).Contains(this) && 
+                        !manager.IsAnyCardClicked() && 
                         manager.clickDrawPileToDraw)
                 {
                     manager.Draw(1);

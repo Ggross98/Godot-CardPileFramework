@@ -50,10 +50,10 @@ public partial class Enemy : CardDropzone
         var data = (MyCardData)((MyCard)cardUi).cardData;
         GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
         HP -= data.value;
-
-        cardPileManager.SetCardPile(cardUi, CardDropzone.PilesType.DiscardPile);
-
         UpdateDisplay();
+
+        var manager = (MyCardPileManager)cardPileManager;
+        manager.Discard(cardUi);
     }
 
 

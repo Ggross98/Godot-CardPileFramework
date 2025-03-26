@@ -1,24 +1,19 @@
 namespace Ggross.CardPileFramework;
 
+using System.ComponentModel;
 using Godot;
 using Godot.Collections;
 
 public partial class CardDropzone : Control
 {
     [Export]
-    public SimpleCardPileManager cardPileManager;
-    [Export]
-    public int stackDisplayGap = 8;
-    [Export]
-    public int maxStackDisplay = 6;
-    [Export]
-    public bool cardUIFaceUp = true;
-    [Export]
-    public bool canDragTopCard = true;
+    public CardPileManager cardPileManager;
+    
     // [Export] public bool heldCardDirection = true;
     public bool mouseIsHovering = false;
+    [Export] public bool enabled = true;
 
-    public enum PilesType
+    public enum DropzoneType
     {
         DrawPile,
         HandPile,
@@ -26,7 +21,7 @@ public partial class CardDropzone : Control
         Dropzone
     }
 
-    public enum PilesCardLayouts
+    public enum DropzoneCardLayout
     {
         Up,
         Left,
@@ -35,12 +30,12 @@ public partial class CardDropzone : Control
     }
 
     [Export]
-    public PilesCardLayouts layout = PilesCardLayouts.Up;
+    public DropzoneCardLayout layout = DropzoneCardLayout.Up;
 
     [Export]
-    public PilesType pilesType = PilesType.Dropzone;
+    public DropzoneType pilesType = DropzoneType.Dropzone;
 
-    protected Array<Card> _heldCards = new Array<Card>();
+    protected Array<Card> _holdingCards = new Array<Card>();
 
 
     public override void _Ready(){
@@ -76,11 +71,11 @@ public partial class CardDropzone : Control
 
     public virtual void OnCardDropped(Card cardUi)
     {
-        if (cardPileManager != null)
-        {
-            cardPileManager.SetCardDropzone(cardUi, this);
-        }
-        else return;
+        // if (cardPileManager != null)
+        // {
+        //     cardPileManager.SetCardDropzone(cardUi, this);
+        // }
+        // else return;
     }
 
     public virtual bool CanDropCard(Card cardUi)
@@ -90,82 +85,77 @@ public partial class CardDropzone : Control
 
     public Card GetTopCard()
     {
-        if (_heldCards.Count > 0)
+        if (_holdingCards.Count > 0)
         {
-            return _heldCards[_heldCards.Count - 1];
+            return _holdingCards[0];
         }
         return null;
     }
 
     public Card GetCardAt(int index)
     {
-        if (_heldCards.Count > index)
+        if (_holdingCards.Count > index)
         {
-            return _heldCards[index];
+            return _holdingCards[index];
         }
         return null;
     }
 
-    public int GetTotalHeldCards()
+    public int GetTotalHoldingCards()
     {
-        return _heldCards.Count;
+        return _holdingCards.Count;
     }
 
     public bool IsHolding(Card cardUi)
     {
-        return _heldCards.Contains(cardUi);
+        return _holdingCards.Contains(cardUi);
     }
 
-    public Array<Card> GetHeldCards()
+    public bool IsAnyCardClicked(){
+        foreach(var card in _holdingCards){
+            if(card.isClicked){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Array<Card> GetHoldingCards()
     {
-        return new Array<Card>(_heldCards); // duplicate to allow the user to mess with the array without messing with this one!!!
+        return new Array<Card>(_holdingCards); // duplicate to allow the user to mess with the array without messing with this one!!!
     }
 
     public void AddCard(Card cardUi)
     {
-        _heldCards.Add(cardUi);
+        _holdingCards.Add(cardUi);
         // UpdateTargetPositions();
     }
 
     public void RemoveCard(Card cardUi)
     {
-        _heldCards.Remove(cardUi);
+        _holdingCards.Remove(cardUi);
         // UpdateTargetPositions();
     }
 
-    public void UpdateCardsTargetPositions(bool instantlyMove = false)
+    public virtual void UpdateCardsTargetPositions(bool instantlyMove = false)
     {
-        for (int i = 0; i < _heldCards.Count; i++)
+        for (int i = 0; i < _holdingCards.Count; i++)
         {
-            var cardUi = _heldCards[i];
+            var cardUi = _holdingCards[i];
+            cardUi.MoveToFront();
+
             var targetPos = Position;
-            switch (layout)
-            {
-                case PilesCardLayouts.Up:
-                    targetPos.Y -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
-                    break;
-                case PilesCardLayouts.Down:
-                    targetPos.Y += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
-                    break;
-                case PilesCardLayouts.Right:
-                    targetPos.X += i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
-                    break;
-                case PilesCardLayouts.Left:
-                    targetPos.X -= i <= maxStackDisplay ? i * stackDisplayGap : stackDisplayGap * maxStackDisplay;
-                    break;
-            }
-            cardUi.SetDirection(cardUIFaceUp ? Vector2.Up : Vector2.Down);
-            // cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
-            cardUi.MoveToFront(); // must also do this to account for INVISIBLE INTERACTION ORDER
             cardUi.targetPosition = targetPos;
-            if(instantlyMove) cardUi.Position = targetPos;
+            if(instantlyMove){
+                cardUi.Position = targetPos;
+            }
         }
     }
 
-    public void UpdateCardsZIndex(){
-        for (int i = 0; i < _heldCards.Count; i++)
+    public virtual void UpdateCardsZIndex(){
+        for (int i = 0; i < _holdingCards.Count; i++)
         {
-            var cardUi = _heldCards[i];
+            var cardUi = _holdingCards[i];
             cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
         }
     }

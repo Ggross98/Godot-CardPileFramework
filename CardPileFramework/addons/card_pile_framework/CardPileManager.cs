@@ -110,7 +110,7 @@ public partial class CardPileManager : Control
         GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
         foreach (var dropzone in allDropzones)
         {
-            if (dropzone.pilesType == CardDropzone.PilesType.Dropzone && dropzone.IsHolding(card))
+            if (dropzone.pilesType == CardDropzone.DropzoneType.Dropzone && dropzone.IsHolding(card))
             {
                 GD.Print(card.Name);
                 dropzone.RemoveCard(card);
@@ -145,7 +145,7 @@ public partial class CardPileManager : Control
     protected void GetDropzones(Node node, string className, Array<CardDropzone> result)
     {
         if (node is CardDropzone dropzone){
-            if(dropzone.pilesType == CardDropzone.PilesType.Dropzone)
+            if(dropzone.pilesType == CardDropzone.DropzoneType.Dropzone)
                 result.Add(dropzone);
         }
             

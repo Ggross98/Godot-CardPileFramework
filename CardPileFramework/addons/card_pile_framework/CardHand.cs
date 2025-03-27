@@ -27,7 +27,9 @@ public partial class CardHand : CardDropzone
             var cardUi = _holdingCards[i];
             cardUi.MoveToFront();
             var handRatio = _holdingCards.Count > 1 ? (float)i / (_holdingCards.Count - 1) : 0.5f;
-            var targetPos = Position;
+
+            var targetPos = Position + new Vector2(Size.X/2, 0);
+
             var cardSpacing = maxHandSpread / (_holdingCards.Count + 1);
             targetPos.X += (i + 1) * cardSpacing - maxHandSpread / 2.0f;
             if (handVerticalCurve != null)

@@ -47,7 +47,7 @@ public partial class CardDropzone : Control
 
     public override void _Process(double delta)
     {
-        UpdateCardsTargetPositions();
+        // UpdateCardsTargetPositions();
 
         // Check mouse event
         var tmp = GetGlobalRect().HasPoint(GetGlobalMousePosition());

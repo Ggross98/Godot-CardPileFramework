@@ -83,7 +83,7 @@ public partial class CardPileManager : Control
         EmitSignal(nameof(CardRemovedFromGame), card);
         card.QueueFree();
 
-        ResetTargetPositions();
+        ResetCardsTargetPosition();
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public partial class CardPileManager : Control
         dropzone.AddCard(card);
         EmitSignal(nameof(CardAddedToDropzone), dropzone, card);
 
-        ResetTargetPositions();
+        ResetCardsTargetPosition();
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ public partial class CardPileManager : Control
     /// <summary>
     /// Update the positions.
     /// </summary>
-    protected virtual void ResetTargetPositions(){
+    protected virtual void ResetCardsTargetPosition(){
         
     }
 }

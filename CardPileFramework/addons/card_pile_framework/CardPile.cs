@@ -43,7 +43,7 @@ public partial class CardPile : CardDropzone
                     break;
             }
             cardUi.SetDirection(cardUIFaceUp ? Vector2.Up : Vector2.Down);
-            // cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
+            cardUi.Rotation = 0;
             cardUi.MoveToFront(); // must also do this to account for INVISIBLE INTERACTION ORDER
             cardUi.targetPosition = targetPos;
             if(instantlyMove) cardUi.Position = targetPos;

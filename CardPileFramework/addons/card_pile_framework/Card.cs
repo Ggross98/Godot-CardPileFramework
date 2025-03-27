@@ -56,6 +56,7 @@ public partial class Card : Control
         {
             targetPosition = GetGlobalMousePosition() - CustomMinimumSize * 0.5f;
         }
+
         if (isClicked)
         {
             Position = targetPosition;
@@ -96,7 +97,6 @@ public partial class Card : Control
     }
 
     public void SetControlParameters(float _returnSpeed, int _hoverDistance, bool _dragWhenClicked){
-
         returnSpeed = _returnSpeed;
         hoverDistance = _hoverDistance;
         dragWhenClicked = _dragWhenClicked;
@@ -130,7 +130,11 @@ public partial class Card : Control
         {
             GD.Print("Card is interactable " + Name);
             mouseIsHovering = true;
+
+            GD.Print(targetPosition);
             targetPosition.Y -= hoverDistance;
+            GD.Print(targetPosition);
+            
             EmitSignal(SignalName.CardHovered, this);
         }
     }

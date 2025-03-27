@@ -138,34 +138,32 @@ cardPileManager = NodePath("../../MyCardPileManager")
 anchors_preset = 0
 offset_left = 31.0
 offset_top = 634.0
-offset_right = 31.0
-offset_bottom = 634.0
+offset_right = 199.0
+offset_bottom = 874.0
 mouse_filter = 2
 script = ExtResource("6_thior")
 cardUIFaceUp = false
 canDragTopCard = false
 cardPileManager = NodePath("../../MyCardPileManager")
-pilesType = 0
 
 [node name="DiscardPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 1401.0
 offset_top = 625.0
-offset_right = 1401.0
-offset_bottom = 625.0
+offset_right = 1569.0
+offset_bottom = 865.0
 mouse_filter = 2
 script = ExtResource("6_thior")
 canDragTopCard = false
 cardPileManager = NodePath("../../MyCardPileManager")
-pilesType = 2
 
 [node name="Hand" type="Control" parent="Dropzones" node_paths=PackedStringArray("cardPileManager")]
 anchors_preset = 0
-offset_left = 797.0
+offset_left = 294.0
 offset_top = 630.0
-offset_right = 797.0
-offset_bottom = 630.0
+offset_right = 1294.0
+offset_bottom = 870.0
 mouse_filter = 2
 script = ExtResource("7_78uiv")
 handRotationCurve = ExtResource("8_cv6ll")
@@ -184,6 +182,7 @@ cardCollectionPath = "res://examples/card_battle/card_data/example_card_collecti
 drawPile = NodePath("../Dropzones/DrawPile")
 discardPile = NodePath("../Dropzones/DiscardPile")
 handPile = NodePath("../Dropzones/Hand")
+dragWhenClicked = false
 cardUIPrefab = ExtResource("6_42g6k")
 
 [node name="Status" type="Control" parent="."]

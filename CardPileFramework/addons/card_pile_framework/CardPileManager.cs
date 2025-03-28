@@ -83,7 +83,7 @@ public partial class CardPileManager : Control
         EmitSignal(nameof(CardRemovedFromGame), card);
         card.QueueFree();
 
-        ResetCardsTargetPosition();
+        UpdateCardsTargetPosition();
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public partial class CardPileManager : Control
         dropzone.AddCard(card);
         EmitSignal(nameof(CardAddedToDropzone), dropzone, card);
 
-        ResetCardsTargetPosition();
+        UpdateCardsTargetPosition();
     }
 
     /// <summary>
@@ -128,6 +128,7 @@ public partial class CardPileManager : Control
     {
         var allDropzones = new Array<CardDropzone>();
         GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+        
         foreach (var dropzone in allDropzones)
         {
             if (dropzone.IsHolding(card))
@@ -145,8 +146,9 @@ public partial class CardPileManager : Control
     protected void GetDropzones(Node node, string className, Array<CardDropzone> result)
     {
         if (node is CardDropzone dropzone){
-            if(dropzone.pilesType == CardDropzone.DropzoneType.Dropzone)
-                result.Add(dropzone);
+            // if(dropzone.pilesType == CardDropzone.DropzoneType.Dropzone)
+            //     result.Add(dropzone);
+            result.Add(dropzone);
         }
             
         foreach (Node child in node.GetChildren())
@@ -156,7 +158,30 @@ public partial class CardPileManager : Control
     /// <summary>
     /// Update the positions.
     /// </summary>
-    protected virtual void ResetCardsTargetPosition(){
+    public virtual void UpdateCardsTargetPosition(){
         
+    }
+
+    public virtual void UpdateCardsZIndex(){
+        
+    }
+
+    public bool IsAnyCardClicked()
+    {
+        // foreach (var pile in new Array<CardDropzone>(){ handPile, drawPile, discardPile})
+        // {
+        //     if (pile.IsAnyCardClicked()){
+        //         return true;
+        //     }
+        // }
+        var allDropzones = new Array<CardDropzone>();
+        GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+        foreach (var dropzone in allDropzones)
+        {
+            if(dropzone.IsAnyCardClicked()){
+                return true;
+            }
+        }
+        return false;
     }
 }

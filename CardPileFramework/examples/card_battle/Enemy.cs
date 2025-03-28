@@ -29,30 +29,30 @@ public partial class Enemy : CardDropzone
         HP = maxHP;
     }
 
-    public override void OnMouseEntered()
+    protected override void OnMouseEntered()
     {
         base.OnMouseEntered();
 
         portrait.SelfModulate = new Color(0, 0, 0.5f, 0.5f);
     }
 
-    public override void OnMouseExited()
+    protected override void OnMouseExited()
     {
         base.OnMouseExited();
 
         portrait.SelfModulate = Colors.White;
     }
 
-    public override void OnCardDropped(Card cardUi)
+    public override void DropCard(Card cardUi)
     {
-        base.OnCardDropped(cardUi);
+        base.DropCard(cardUi);
 
         var data = (MyCardData)((MyCard)cardUi).cardData;
         GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
         HP -= data.value;
         UpdateDisplay();
 
-        var manager = (MyCardPileManager)cardPileManager;
+        var manager = (MyCardPileManager)base.manager;
         manager.Discard(cardUi);
     }
 

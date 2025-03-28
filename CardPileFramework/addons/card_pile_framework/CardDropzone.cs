@@ -6,12 +6,9 @@ using Godot.Collections;
 
 public partial class CardDropzone : Control
 {
-    [Export]
-    public CardPileManager cardPileManager;
-    
-    // [Export] public bool heldCardDirection = true;
-    public bool mouseIsHovering = false;
-    [Export] public bool enabled = true;
+    [Export] public CardPileManager manager;
+    // [Export] public bool enabled = true;
+    public bool IsMouseHovering { get; protected set;}
 
     public enum DropzoneType
     {
@@ -39,55 +36,62 @@ public partial class CardDropzone : Control
 
 
     public override void _Ready(){
-        // _heldCards = new Array<Card>();
-
         MouseEntered += OnMouseEntered;
         MouseExited += OnMouseExited;
     }
 
     public override void _Process(double delta)
     {
-        // UpdateCardsTargetPositions();
-
+        
         // Check mouse event
         var tmp = GetGlobalRect().HasPoint(GetGlobalMousePosition());
-        if(mouseIsHovering && !tmp){
+        if(IsMouseHovering && !tmp){
             EmitSignal(SignalName.MouseExited);
         }
-        if(!mouseIsHovering && tmp){
+        if(!IsMouseHovering && tmp){
             EmitSignal(SignalName.MouseEntered);
         }
-        mouseIsHovering = tmp;
-    }
-
-    public virtual void OnMouseEntered(){
+        IsMouseHovering = tmp;
 
     }
 
-    public virtual void OnMouseExited(){
+    protected virtual void OnMouseEntered(){
+        GD.Print("Mouse Entered: ", Name);
+    }
+
+    protected virtual void OnMouseExited(){
 
     }
 
 
-    public virtual void OnCardDropped(Card cardUi)
+    public virtual void DropCard(Card cardUi)
     {
-        // if (cardPileManager != null)
-        // {
-        //     cardPileManager.SetCardDropzone(cardUi, this);
-        // }
-        // else return;
+
     }
 
     public virtual bool CanDropCard(Card cardUi)
     {
+        return IsInteractive();
+    }
+
+    public virtual bool IsInteractive(){
         return Visible;
+    }
+
+    public virtual bool IsCardInteractive(Card card){
+        if(IsHolding(card)){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public Card GetTopCard()
     {
         if (_holdingCards.Count > 0)
         {
-            return _holdingCards[0];
+            return _holdingCards[_holdingCards.Count - 1];
         }
         return null;
     }
@@ -101,7 +105,7 @@ public partial class CardDropzone : Control
         return null;
     }
 
-    public int GetTotalHoldingCards()
+    public int CardsCount()
     {
         return _holdingCards.Count;
     }
@@ -113,16 +117,17 @@ public partial class CardDropzone : Control
 
     public bool IsAnyCardClicked(){
         foreach(var card in _holdingCards){
-            if(card.isClicked){
+            if(card.IsClicked){
                 return true;
             }
         }
         return false;
     }
 
-    public Array<Card> GetHoldingCards()
+    public Array<Card> GetCards()
     {
-        return new Array<Card>(_holdingCards); // duplicate to allow the user to mess with the array without messing with this one!!!
+        // Get a copy of holding cards array. 
+        return [.. _holdingCards]; 
     }
 
     public void AddCard(Card cardUi)
@@ -145,7 +150,7 @@ public partial class CardDropzone : Control
             cardUi.MoveToFront();
 
             var targetPos = Position;
-            cardUi.targetPosition = targetPos;
+            cardUi.TargetPosition = targetPos;
             if(instantlyMove){
                 cardUi.Position = targetPos;
             }
@@ -156,7 +161,7 @@ public partial class CardDropzone : Control
         for (int i = 0; i < _holdingCards.Count; i++)
         {
             var cardUi = _holdingCards[i];
-            cardUi.ZIndex = cardUi.isClicked ? 3000 + i : i;
+            cardUi.ZIndex = cardUi.IsClicked ? 3000 + i : i;
         }
     }
 

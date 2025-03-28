@@ -7,18 +7,10 @@ using System;
 /// </summary>
 public partial class CardHand : CardDropzone
 {
-    [Export]
-    public int maxHandSize = 10;
-    [Export]
-    public int maxHandSpread = 700;
-    [Export]
-    public Curve handRotationCurve;
-    [Export]
-    public Curve handVerticalCurve;
-    // [Export]
-    // public bool handEnabled = true;
-    [Export]
-    public bool handFaceUp = true;
+    [Export] public int MaxHandSize {get; protected set;}
+    [Export] public int MaxHandSpread {get; protected set;}
+    [Export] protected Curve handRotationCurve, handVerticalCurve;
+    [Export] protected bool handFaceUp = true;
 
     public override void UpdateCardsTargetPositions(bool instantlyMove = false)
     {
@@ -30,15 +22,15 @@ public partial class CardHand : CardDropzone
 
             var targetPos = Position + new Vector2(Size.X/2, 0);
 
-            var cardSpacing = maxHandSpread / (_holdingCards.Count + 1);
-            targetPos.X += (i + 1) * cardSpacing - maxHandSpread / 2.0f;
+            var cardSpacing = MaxHandSpread / (_holdingCards.Count + 1);
+            targetPos.X += (i + 1) * cardSpacing - MaxHandSpread / 2.0f;
             if (handVerticalCurve != null)
                 targetPos.Y -= handVerticalCurve.SampleBaked(handRatio);
             if (handRotationCurve != null)
                 cardUi.Rotation = Mathf.DegToRad(handRotationCurve.SampleBaked(handRatio));
             cardUi.SetDirection(handFaceUp ? Vector2.Up : Vector2.Down);
 
-            cardUi.targetPosition = targetPos;
+            cardUi.TargetPosition = targetPos;
             if(instantlyMove){
                 cardUi.Position = targetPos;
             }
@@ -53,14 +45,22 @@ public partial class CardHand : CardDropzone
             var cardUi = _holdingCards[i];
             cardUi.ZIndex = 1000 + i;
             cardUi.MoveToFront();
-            if (cardUi.mouseIsHovering)
+            if (cardUi.IsMouseHovering)
                 cardUi.ZIndex = 2000 + i;
-            if (cardUi.isClicked)
+            if (cardUi.IsClicked)
                 cardUi.ZIndex = 3000 + i;
         }
     }
 
     public bool IsFull(){
-        return _holdingCards.Count >= maxHandSize;
+        return _holdingCards.Count >= MaxHandSize;
+    }
+
+    public override bool IsCardInteractive(Card card)
+    {
+        if(base.IsCardInteractive(card)){
+            return !manager.IsAnyCardClicked();
+        }
+        return false;
     }
 }

@@ -22,9 +22,9 @@ public partial class SkillZone : CardDropzone
         }
     }
 
-    public override void OnCardDropped(Card cardUi)
+    public override void DropCard(Card cardUi)
     {
-        base.OnCardDropped(cardUi);
+        base.DropCard(cardUi);
 
         var data = (MyCardData)((MyCard)cardUi).cardData;
         GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
@@ -35,7 +35,7 @@ public partial class SkillZone : CardDropzone
             GetNode<CardBattle>("/root/CardBattle").Shield += data.value;
         }
 
-        var manager = (MyCardPileManager)cardPileManager;
+        var manager = (MyCardPileManager)base.manager;
         manager.Discard(cardUi);
     }
 }

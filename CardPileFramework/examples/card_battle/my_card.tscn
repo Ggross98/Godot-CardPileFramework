@@ -37,7 +37,6 @@ costLabel = NodePath("Frontface/Cost/Label")
 image = NodePath("Frontface/Image")
 frontface = NodePath("Frontface")
 backface = NodePath("Backface")
-dragWhenClicked = false
 
 [node name="Backface" type="TextureRect" parent="."]
 layout_mode = 0

@@ -25,29 +25,14 @@ public partial class SimpleCardPileManager : CardPileManager
     [Export] protected CardHand handPile;
 
 
-    [ExportGroup("Cards")]
-    [Export]
-    public float cardReturnSpeed = 0.15f;
-
     [ExportGroup("Settings")]
+    [Export] public float cardReturnSpeed = 0.15f;
+    [Export] public int cardUIHoverDistance = 30;
     [Export] public bool clickDrawPileToDraw = true;
     [Export] public bool cantDrawAtHandLimit = true;
     [Export] public bool shuffleDiscardOnEmptyDraw = true;
-    // [Export]
-    // public CardDropzone.PilesCardLayouts drawPileLayout = CardDropzone.PilesCardLayouts.Up;
-    
-    
-    [Export]
-    public int cardUIHoverDistance = 30;
-    [Export]
-    public bool dragWhenClicked = true;
-    
-
-    // [ExportGroup("Discard Pile")]
-    // [Export]
-    // public bool discardFaceUp = true;
-    // [Export]
-    // public CardDropzone.PilesCardLayouts discardPileLayout = CardDropzone.PilesCardLayouts.Up;
+    [Export] public bool dragWhenClicked = true;
+    // [Export] protected Curve spreadCurve = new Curve();
 
     /// <summary>
     /// Save the base data of all cards
@@ -59,25 +44,18 @@ public partial class SimpleCardPileManager : CardPileManager
     /// </summary>
     protected Array<string> cardCollection = new Array<string>();
 
-    // protected Array<Card> _drawPile = new Array<Card>();
-    // protected Array<Card> _handPile = new Array<Card>();
-    // protected Array<Card> _discardPile = new Array<Card>();
-
-    /// <summary>
-    /// Show curve when player drags a card
-    /// </summary>
-    protected Curve spreadCurve = new Curve();
+    
 
     public override void _Ready()
     {
         base._Ready();
 
         Size = Vector2.Zero;
-        spreadCurve.AddPoint(new Vector2(0, -1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
-        spreadCurve.AddPoint(new Vector2(1, 1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
+        // spreadCurve.AddPoint(new Vector2(0, -1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
+        // spreadCurve.AddPoint(new Vector2(1, 1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
         LoadJsonFiles();
         ResetCardCollection();
-        ResetCardsTargetPosition();
+        UpdateCardsTargetPosition();
     }
 
     public void SetCardPile(Card card, CardDropzone.DropzoneType pile)
@@ -104,8 +82,8 @@ public partial class SimpleCardPileManager : CardPileManager
             EmitSignal(nameof(DrawPileUpdated));
         }
 
-        ResetCardsTargetPosition();
-        ResetCardsZIndex();
+        UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
     }
 
     public override void SetCardDropzone(Card card, CardDropzone dropzone)
@@ -115,8 +93,8 @@ public partial class SimpleCardPileManager : CardPileManager
 
         base.SetCardDropzone(card, dropzone);
 
-        ResetCardsTargetPosition();
-        ResetCardsZIndex();
+        UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
     }
 
     public override void RemoveCardFromGame(Card card)
@@ -126,21 +104,21 @@ public partial class SimpleCardPileManager : CardPileManager
 
         base.RemoveCardFromGame(card);
 
-        ResetCardsTargetPosition();
-        ResetCardsZIndex();
+        UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
     }
 
     public Array<Card> GetCardsInPile(CardDropzone.DropzoneType pile)
     {
         if (pile == CardDropzone.DropzoneType.DiscardPile)
             // return [.. _discardPile];
-            return discardPile.GetHoldingCards();
+            return discardPile.GetCards();
         else if (pile == CardDropzone.DropzoneType.HandPile)
             // return [.. _handPile];
-            return handPile.GetHoldingCards();
+            return handPile.GetCards();
         else if (pile == CardDropzone.DropzoneType.DrawPile)
             // return [.. _drawPile];
-            return drawPile.GetHoldingCards();
+            return drawPile.GetCards();
 
         else return new Array<Card>();
     }
@@ -157,7 +135,7 @@ public partial class SimpleCardPileManager : CardPileManager
 
     public Card GetCardInPileAt(CardDropzone.DropzoneType pile, int index)
     {
-        if(pile == CardDropzone.DropzoneType.HandPile && handPile.GetTotalHoldingCards() > index){
+        if(pile == CardDropzone.DropzoneType.HandPile && handPile.CardsCount() > index){
             return handPile.GetCardAt(index);
         }
         else if(pile == CardDropzone.DropzoneType.DrawPile){
@@ -173,7 +151,7 @@ public partial class SimpleCardPileManager : CardPileManager
 
         var pile = GetPile(piles);
         if(pile != null){
-            return pile.GetHoldingCards().Count;
+            return pile.GetCards().Count;
         }
         else return 0;
     
@@ -243,26 +221,26 @@ public partial class SimpleCardPileManager : CardPileManager
             // _drawPile.Shuffle();
             drawPile.AddCard(cardUi);
         }
-        drawPile.GetHoldingCards().Shuffle();
+        drawPile.GetCards().Shuffle();
 
-        ResetCardsTargetPosition();
-        ResetCardsZIndex();
+        UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
 
         EmitSignal(nameof(DrawPileUpdated));
         EmitSignal(nameof(HandPileUpdated));
         EmitSignal(nameof(DiscardPileUpdated));
     }
 
-    protected override void ResetCardsTargetPosition()
+    public override void UpdateCardsTargetPosition()
     {
         drawPile.UpdateCardsTargetPositions();
         handPile.UpdateCardsTargetPositions();
-        while (handPile.GetTotalHoldingCards() > handPile.maxHandSize)
+        while (handPile.CardsCount() > handPile.MaxHandSize)
             SetCardPile(handPile.GetTopCard(), CardDropzone.DropzoneType.DiscardPile);
         discardPile.UpdateCardsTargetPositions();
     }
 
-    public void ResetCardsZIndex()
+    public override void UpdateCardsZIndex()
     {
         handPile.UpdateCardsZIndex();
         drawPile.UpdateCardsZIndex();
@@ -274,47 +252,30 @@ public partial class SimpleCardPileManager : CardPileManager
         return handPile.IsHolding(cardUi);
     }
 
-    public bool IsAnyCardClicked()
-    {
-        foreach (var pile in new Array<CardDropzone>(){ handPile, drawPile, discardPile})
-        {
-            if (pile.IsAnyCardClicked()){
-                return true;
-            }
-        }
-        var allDropzones = new Array<CardDropzone>();
-        GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
-        foreach (var dropzone in allDropzones)
-        {
-            if(dropzone.IsAnyCardClicked()){
-                return true;
-            }
-        }
-        return false;
-    }
+    
 
     public new void Draw(int numCards = 1)
     {
         for (int i = 0; i < numCards; i++)
         {
-            if (handPile.GetTotalHoldingCards() >= handPile.maxHandSize && cantDrawAtHandLimit)
+            if (handPile.CardsCount() >= handPile.MaxHandSize && cantDrawAtHandLimit)
                 continue;
-            if(drawPile.GetTotalHoldingCards() > 0){
+            if(drawPile.CardsCount() > 0){
                 var card = drawPile.GetTopCard();
                 SetCardPile(card, CardDropzone.DropzoneType.HandPile);
             }
-            else if(shuffleDiscardOnEmptyDraw && discardPile.GetTotalHoldingCards() > 0){
-                var discardCards = discardPile.GetHoldingCards().Duplicate();
+            else if(shuffleDiscardOnEmptyDraw && discardPile.CardsCount() > 0){
+                var discardCards = discardPile.GetCards().Duplicate();
                 foreach(var discardCard in discardCards){
                     SetCardPile(discardCard, CardDropzone.DropzoneType.DrawPile);
                 }
-                drawPile.GetHoldingCards().Shuffle();
+                drawPile.GetCards().Shuffle();
                 var card = drawPile.GetTopCard();
                 SetCardPile(card, CardDropzone.DropzoneType.HandPile);
             }
         }
 
-        ResetCardsTargetPosition();
+        UpdateCardsTargetPosition();
     }
 
     public void Discard(Card card){
@@ -329,15 +290,15 @@ public partial class SimpleCardPileManager : CardPileManager
     public bool IsPileEnabled(CardDropzone.DropzoneType dropzoneType){
         var pile = GetPile(dropzoneType);
         if(pile != null){
-            return pile.enabled;
+            return pile.IsInteractive();
         }
         return false;
     }
 
     public void SortHand(Func<Card, Card> sortFunc)
     {
-        handPile.GetHoldingCards().OrderBy(sortFunc);
-        ResetCardsTargetPosition();
+        handPile.GetCards().OrderBy(sortFunc);
+        UpdateCardsTargetPosition();
     }
 
     protected Card CreateCardFromJson(Dictionary jsonData)

@@ -13,11 +13,11 @@ public partial class CardPile : CardDropzone
     [Export]
     public bool canDragTopCard = true;
 
-    public override void OnCardDropped(Card cardUi)
+    public override void DropCard(Card cardUi)
     {
-        if (cardPileManager != null)
+        if (manager != null)
         {
-            cardPileManager.SetCardDropzone(cardUi, this);
+            manager.SetCardDropzone(cardUi, this);
         }
     }
 
@@ -45,8 +45,16 @@ public partial class CardPile : CardDropzone
             cardUi.SetDirection(cardUIFaceUp ? Vector2.Up : Vector2.Down);
             cardUi.Rotation = 0;
             cardUi.MoveToFront(); // must also do this to account for INVISIBLE INTERACTION ORDER
-            cardUi.targetPosition = targetPos;
+            cardUi.TargetPosition = targetPos;
             if(instantlyMove) cardUi.Position = targetPos;
         }
+    }
+
+    public override bool IsCardInteractive(Card card)
+    {
+        if(base.IsCardInteractive(card)){
+            return !manager.IsAnyCardClicked() && canDragTopCard && card == GetTopCard();
+        }
+        return false;
     }
 }

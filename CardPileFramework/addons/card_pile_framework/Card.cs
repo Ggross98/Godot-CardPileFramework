@@ -3,6 +3,7 @@ namespace Ggross.CardPileFramework;
 using Godot;
 using System;
 using Godot.Collections;
+using System.Buffers;
 
 [Tool]
 public partial class Card : Control
@@ -21,55 +22,41 @@ public partial class Card : Control
     #endregion
     
 
-    [Export]
-    public CardData cardData;
-
+    [Export] public CardData cardData;
     [Export] protected TextureRect frontface, backface;    
-    public bool isClicked = false;
-    public bool mouseIsHovering = false;
-    public Vector2 targetPosition = Vector2.Zero;
-    [Export] protected float returnSpeed = 0.2f;
-    [Export] protected int hoverDistance = 10;
-    [Export] protected bool dragWhenClicked = true;
-    protected int lastChildCount = 0;
+
+    public bool IsClicked {get; protected set;}
+    public bool IsMouseHovering {get; protected set;}
+    public Vector2 TargetPosition {get; set;}
+    public float ReturnSpeed {get; set;}
+    public int HoverDistance {get; set;}
+    public bool DragWhenClicked {get; set;}
+
+    protected CardPileManager manager;
 
     public override void _Ready()
     {
-
-        if (Engine.IsEditorHint())
-        {
-            SetDisabled(true);
-            UpdateConfigurationWarnings();
-            return;
-        }
+        manager = GetParent<CardPileManager>();
 
         MouseEntered += OnMouseEntered;
         MouseExited += OnMouseExited;
         GuiInput += OnGuiInput;
 
-        
     }
 
     public override void _Process(double delta)
     {
-        if (isClicked && dragWhenClicked)
+        if (IsClicked)
         {
-            targetPosition = GetGlobalMousePosition() - CustomMinimumSize * 0.5f;
+            if(DragWhenClicked){
+                TargetPosition = GetGlobalMousePosition() - CustomMinimumSize * 0.5f;
+            }
+            Position = TargetPosition;
         }
-
-        if (isClicked)
-        {
-            Position = targetPosition;
-        }
-        else if (Position != targetPosition)
-        {
-            Position = MathUtils.Vector2Lerp(Position, targetPosition, returnSpeed);
-        }
-
-        if (Engine.IsEditorHint() && lastChildCount != GetChildCount())
-        {
-            UpdateConfigurationWarnings();
-            lastChildCount = GetChildCount();
+        else{
+            if(Position != TargetPosition){
+                Position = MathUtils.Vector2Lerp(Position, TargetPosition, ReturnSpeed);
+            }
         }
     }
 
@@ -86,20 +73,22 @@ public partial class Card : Control
                 frontface.Texture = GD.Load<Texture2D>(frontfaceTexturePath);
                 CustomMinimumSize = frontface.Texture.GetSize();
                 PivotOffset = frontface.Texture.GetSize() / 2;
-                MouseFilter = MouseFilterEnum.Pass;
             }
 
             if(!string.IsNullOrEmpty(backfaceTexturePath)){
                 backface.Texture = GD.Load<Texture2D>(backfaceTexturePath);
             }
+
+            
+            MouseFilter = MouseFilterEnum.Pass;
         }
         
     }
 
     public void SetControlParameters(float _returnSpeed, int _hoverDistance, bool _dragWhenClicked){
-        returnSpeed = _returnSpeed;
-        hoverDistance = _hoverDistance;
-        dragWhenClicked = _dragWhenClicked;
+        ReturnSpeed = _returnSpeed;
+        HoverDistance = _hoverDistance;
+        DragWhenClicked = _dragWhenClicked;
     }
 
     public void SetDirection(Vector2 cardIsFacing)
@@ -108,32 +97,39 @@ public partial class Card : Control
         frontface.Visible = cardIsFacing == Vector2.Up;
     }
 
-    protected virtual void SetDisabled(bool val)
-    {
-        if (val)
-        {
-            mouseIsHovering = false;
-            isClicked = false;
-            Rotation = 0;
-        }
-    }
+    // protected virtual void SetDisabled(bool val)
+    // {
+    //     if (val)
+    //     {
+    //         IsMouseHovering = false;
+    //         IsClicked = false;
+    //         Rotation = 0;
+    //     }
+    // }
 
-    protected virtual bool IsInteractable()
+    public virtual bool IsInteractive()
     {
-        return true;
+        if(!Visible) return false;
+        if(manager == null) return true;
+        else{
+            var dropzone = manager.GetCardDropzone(this);
+            if (dropzone != null)
+            {
+                return dropzone.IsCardInteractive(this);
+            }
+            else{
+                return true;
+            }
+        }
     }
 
     protected virtual void OnMouseEntered()
     {
-        GD.Print("Mouse entered " + Name);
-        if (IsInteractable())
+        if (IsInteractive())
         {
-            GD.Print("Card is interactable " + Name);
-            mouseIsHovering = true;
+            IsMouseHovering = true;
 
-            GD.Print(targetPosition);
-            targetPosition.Y -= hoverDistance;
-            GD.Print(targetPosition);
+            TargetPosition = TargetPosition += new Vector2(0, -HoverDistance);
             
             EmitSignal(SignalName.CardHovered, this);
         }
@@ -142,10 +138,12 @@ public partial class Card : Control
     protected virtual void OnMouseExited()
     {
 
-        if (!isClicked && mouseIsHovering)
+        if (!IsClicked && IsMouseHovering)
         {
-            mouseIsHovering = false;
-            targetPosition.Y += hoverDistance;
+            IsMouseHovering = false;
+
+            TargetPosition = TargetPosition += new Vector2(0, HoverDistance);
+
             EmitSignal(SignalName.CardUnhovered, this);
         }
     }
@@ -157,19 +155,19 @@ public partial class Card : Control
 
             if (mouseEvent.Pressed)
             {
-                if (IsInteractable())
+                if (IsInteractive())
                 {
-                    isClicked = true;
+                    IsClicked = true;
                     Rotation = 0;
                     EmitSignal(SignalName.CardClicked, this);
                 }
             }
             else
             {
-                if (isClicked)
+                if (IsClicked)
                 {
-                    isClicked = false;
-                    mouseIsHovering = false;
+                    IsClicked = false;
+                    IsMouseHovering = false;
                     Rotation = 0;
 
                     var allDropzones = new Godot.Collections.Array();
@@ -181,14 +179,14 @@ public partial class Card : Control
                         {
                             if (dropzone.CanDropCard(this))
                             {
-                                dropzone.OnCardDropped(this);
+                                dropzone.DropCard(this);
                                 break;
                             }
                         }
                     }
-
-                    EmitSignal(SignalName.CardDropped, this);
+                    
                     EmitSignal(SignalName.CardUnhovered, this);
+                    EmitSignal(SignalName.CardDropped, this);
                 }
             }
         }
@@ -205,27 +203,5 @@ public partial class Card : Control
         {
             GetDropzones(child, className, result);
         }
-    }
-
-    
-
-    
-
-    public override string[] _GetConfigurationWarnings()
-    {
-        if (GetChildCount() != 2)
-        {
-            return ["This node must have 2 TextureRect as children, one named `Frontface` and one named `Backface`."];
-        }
-
-        foreach (Node child in GetChildren())
-        {
-            if (!(child is TextureRect) || (child.Name != "Frontface" && child.Name != "Backface"))
-            {
-                return ["This node must have 2 TextureRect as children, one named `Frontface` and one named `Backface`."];
-            }
-        }
-
-        return [];
     }
 }

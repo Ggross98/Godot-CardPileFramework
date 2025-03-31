@@ -32,11 +32,11 @@ public partial class Card : Control
     public int HoverDistance {get; set;}
     public bool DragWhenClicked {get; set;}
 
-    protected CardPileManager manager;
+    protected CardManager manager;
 
     public override void _Ready()
     {
-        manager = GetParent<CardPileManager>();
+        manager = GetParent<CardManager>();
 
         MouseEntered += OnMouseEntered;
         MouseExited += OnMouseExited;

@@ -2,7 +2,7 @@ using Ggross.CardPileFramework;
 using Godot;
 using System;
 
-public partial class CardPile : CardDropzone
+public partial class SimpleCardPile : CardDropzone
 {
     [Export]
     public int stackDisplayGap = 8;

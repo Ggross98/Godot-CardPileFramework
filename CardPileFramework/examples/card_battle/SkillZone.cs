@@ -35,7 +35,7 @@ public partial class SkillZone : CardDropzone
             GetNode<CardBattle>("/root/CardBattle").Shield += data.value;
         }
 
-        var manager = (MyCardPileManager)base.manager;
+        var manager = (SimpleCardPileManager)base.manager;
         manager.Discard(cardUi);
     }
 }

@@ -6,7 +6,7 @@ using Godot.Collections;
 
 public partial class CardDropzone : Control
 {
-    [Export] public CardPileManager manager;
+    [Export] public CardManager manager;
     // [Export] public bool enabled = true;
     public bool IsMouseHovering { get; protected set;}
 

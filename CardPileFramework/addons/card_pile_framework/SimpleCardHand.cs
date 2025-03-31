@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Hand pile
 /// </summary>
-public partial class CardHand : CardDropzone
+public partial class SimpleCardHand : CardDropzone
 {
     [Export] public int MaxHandSize {get; protected set;}
     [Export] public int MaxHandSpread {get; protected set;}

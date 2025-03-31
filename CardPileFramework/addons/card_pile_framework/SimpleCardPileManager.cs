@@ -8,7 +8,7 @@ using System.Linq;
 /// <summary>
 /// Implementation of a simple card pile manager considering draw, discard and hand piles
 /// </summary>
-public partial class SimpleCardPileManager : CardPileManager
+public partial class SimpleCardPileManager : CardManager
 {   
     #region Signals
     [Signal] public delegate void DrawPileUpdatedEventHandler();
@@ -21,8 +21,8 @@ public partial class SimpleCardPileManager : CardPileManager
     public string cardDatabasePath, cardCollectionPath;
 
     [ExportGroup("Piles")]
-    [Export] protected CardPile drawPile, discardPile;
-    [Export] protected CardHand handPile;
+    [Export] protected SimpleCardPile drawPile, discardPile;
+    [Export] protected SimpleCardHand handPile;
 
 
     [ExportGroup("Settings")]

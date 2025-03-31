@@ -9,7 +9,7 @@ using System.ComponentModel;
 /// <summary>
 /// Base class of managers which control card objects and piles.
 /// </summary>
-public partial class CardPileManager : Control
+public partial class CardManager : Control
 {
     #region Signals
     [Signal] public delegate void CardRemovedFromDropzoneEventHandler(CardDropzone dropzone, Card card);

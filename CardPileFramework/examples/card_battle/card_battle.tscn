@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://b51mnai4agdp1"]
+[gd_scene load_steps=19 format=3 uid="uid://b51mnai4agdp1"]
 
 [ext_resource type="Script" uid="uid://dj8kvmy8rhk61" path="res://examples/card_battle/CardBattle.cs" id="1_k583c"]
 [ext_resource type="Script" uid="uid://duprfng4b07u1" path="res://examples/card_battle/Enemy.cs" id="2_66fgq"]
@@ -6,12 +6,12 @@
 [ext_resource type="Script" uid="uid://dlt1mo5dvtiba" path="res://examples/card_battle/SkillZone.cs" id="4_42g6k"]
 [ext_resource type="Texture2D" uid="uid://du0h1h7puv4nh" path="res://examples/card_battle/assets/enemy_1.png" id="4_htl6c"]
 [ext_resource type="Texture2D" uid="uid://bws1g7ruy6xpl" path="res://examples/card_battle/assets/circle.png" id="4_q5k3w"]
-[ext_resource type="Script" uid="uid://bj4pqqa6y5rie" path="res://examples/card_battle/MyCardPileManager.cs" id="5_htl6c"]
 [ext_resource type="PackedScene" uid="uid://dqr42gfvtct60" path="res://examples/card_battle/my_card.tscn" id="6_42g6k"]
-[ext_resource type="Script" uid="uid://md6nbxmxr7fa" path="res://addons/card_pile_framework/CardPile.cs" id="6_thior"]
-[ext_resource type="Script" uid="uid://byaswfpj4d1oc" path="res://addons/card_pile_framework/CardHand.cs" id="7_78uiv"]
+[ext_resource type="Script" uid="uid://md6nbxmxr7fa" path="res://addons/card_pile_framework/SimpleCardPile.cs" id="6_thior"]
+[ext_resource type="Script" uid="uid://byaswfpj4d1oc" path="res://addons/card_pile_framework/SimpleCardHand.cs" id="7_78uiv"]
 [ext_resource type="Curve" uid="uid://bgc87714i054f" path="res://examples/card_battle/resources/hand_rotation_curve.tres" id="8_cv6ll"]
 [ext_resource type="Curve" uid="uid://cfnyg5iqs54fi" path="res://examples/card_battle/resources/hand_vertical_curve.tres" id="9_cxrpw"]
+[ext_resource type="Script" uid="uid://bxl8kv5h7pl77" path="res://addons/card_pile_framework/SimpleCardPileManager.cs" id="10_v4p7x"]
 [ext_resource type="Curve" uid="uid://ixk072erbhwm" path="res://examples/card_battle/resources/targeting_line_curve.tres" id="11_1ass8"]
 
 [sub_resource type="Gradient" id="Gradient_42g6k"]
@@ -19,6 +19,8 @@ colors = PackedColorArray(0, 0, 0, 0.180392, 0, 0, 0, 0.145098)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_htl6c"]
 gradient = SubResource("Gradient_42g6k")
+
+[sub_resource type="Theme" id="Theme_thior"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1c33f"]
 font_size = 32
@@ -131,6 +133,7 @@ offset_top = 70.0
 offset_right = 1190.0
 offset_bottom = 470.0
 mouse_filter = 2
+theme = SubResource("Theme_thior")
 script = ExtResource("4_42g6k")
 manager = NodePath("../../MyCardPileManager")
 
@@ -178,7 +181,7 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 mouse_filter = 1
-script = ExtResource("5_htl6c")
+script = ExtResource("10_v4p7x")
 cardDatabasePath = "res://examples/card_battle/card_data/example_card_database.json"
 cardCollectionPath = "res://examples/card_battle/card_data/example_card_collection.json"
 drawPile = NodePath("../Dropzones/DrawPile")

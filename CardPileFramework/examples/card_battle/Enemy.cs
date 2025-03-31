@@ -52,7 +52,7 @@ public partial class Enemy : CardDropzone
         HP -= data.value;
         UpdateDisplay();
 
-        var manager = (MyCardPileManager)base.manager;
+        var manager = (SimpleCardPileManager)base.manager;
         manager.Discard(cardUi);
     }
 

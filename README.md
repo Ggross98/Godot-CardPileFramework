@@ -21,17 +21,9 @@ The main features are:
 * Or copy the `CardPileFramework/addons/card_pile_framework` folder and paste in your project.
 * Enter `using Ggross.CardPileFramework` in start of your .cs script file.
 ## Classes
-The currently available classes of the framework are listed below.
-| Type | Class Name | Description |
-|--|--|--|
-| Manager | CardPileManager | Base class for managing card objects. |
-| | → SimpleCardPileManager | Implementation of a manager for typical card-pile systems with hand, draw and discard piles. |
-| Data | CardData | Base class of card data. Extends from `Resource` |
-| UI Object | Card | Base class of card UI objects. |
-| | → SimpleCard | Implementation of card UI objects in a typical card-pile system. |
-| UI Object | CardDropzone | Base class for area which handles card drop events. |
-| Utility | MathUtils | A utility class for mathematical calculations. |
-| Utility | JsonUtils | A utility class for saving and loading .json files. |
+The currently available classes of the framework are listed below:    
+![](images/classes_structure.png)  
+Drawn with [mermaid-js](https://github.com/mermaid-js/mermaid).
 ## Example
 To better show how the framework works, a demo of turn-based card-battle game is available.  
 ![](images/card_battle.png)  

@@ -2,8 +2,6 @@ namespace Ggross.CardPileFramework;
 
 using Godot;
 using Godot.Collections;
-using System;
-using System.ComponentModel;
 
 
 /// <summary>
@@ -67,7 +65,7 @@ public partial class CardManager : Control
     protected void CreateCardInDropzone(CardData cardData, CardDropzone dropzone)
     {
         var cardUi = CreateCard(cardData);
-        cardUi.Position = dropzone.Position;
+        
         SetCardDropzone(cardUi, dropzone);
     }
 
@@ -84,6 +82,7 @@ public partial class CardManager : Control
         card.QueueFree();
 
         UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
     }
 
     /// <summary>
@@ -93,29 +92,37 @@ public partial class CardManager : Control
     /// <param name="dropzone"></param>
     public virtual void SetCardDropzone(Card card, CardDropzone dropzone){
         
+        if(card == null || dropzone == null) return;
+
         MaybeRemoveCardFromAnyDropzones(card);
+
         dropzone.AddCard(card);
         EmitSignal(nameof(CardAddedToDropzone), dropzone, card);
 
         UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
     }
 
     /// <summary>
     /// Remove a card UI object from all dropzone objects.
     /// </summary>
     /// <param name="card"></param>
-    protected void MaybeRemoveCardFromAnyDropzones(Card card)
+    protected virtual void MaybeRemoveCardFromAnyDropzones(Card card)
     {
         var allDropzones = new Array<CardDropzone>();
         GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
         foreach (var dropzone in allDropzones)
         {
-            if (dropzone.pilesType == CardDropzone.DropzoneType.Dropzone && dropzone.IsHolding(card))
+            bool removed = false;
+            if (dropzone.IsHolding(card))
             {
-                GD.Print(card.Name);
+                // GD.Print(card.Name);
                 dropzone.RemoveCard(card);
                 EmitSignal(nameof(CardRemovedFromDropzone), dropzone, card);
+
+                removed = true;
             }
+            if(removed) break;
         }
     }
 
@@ -168,14 +175,9 @@ public partial class CardManager : Control
 
     public bool IsAnyCardClicked()
     {
-        // foreach (var pile in new Array<CardDropzone>(){ handPile, drawPile, discardPile})
-        // {
-        //     if (pile.IsAnyCardClicked()){
-        //         return true;
-        //     }
-        // }
         var allDropzones = new Array<CardDropzone>();
         GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+
         foreach (var dropzone in allDropzones)
         {
             if(dropzone.IsAnyCardClicked()){

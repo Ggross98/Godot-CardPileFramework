@@ -10,13 +10,7 @@ public partial class CardDropzone : Control
     // [Export] public bool enabled = true;
     public bool IsMouseHovering { get; protected set;}
 
-    public enum DropzoneType
-    {
-        DrawPile,
-        HandPile,
-        DiscardPile,
-        Dropzone
-    }
+
 
     public enum DropzoneCardLayout
     {
@@ -29,8 +23,7 @@ public partial class CardDropzone : Control
     [Export]
     public DropzoneCardLayout layout = DropzoneCardLayout.Up;
 
-    [Export]
-    public DropzoneType pilesType = DropzoneType.Dropzone;
+    // [Export] public DropzoneType pilesType = DropzoneType.Dropzone;
 
     protected Array<Card> _holdingCards = new Array<Card>();
 

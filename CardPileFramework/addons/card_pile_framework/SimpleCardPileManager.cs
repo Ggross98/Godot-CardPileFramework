@@ -44,112 +44,87 @@ public partial class SimpleCardPileManager : CardManager
     /// </summary>
     protected Array<string> cardCollection = new Array<string>();
 
+    public enum DropzoneType
+    {
+        DrawPile,
+        HandPile,
+        DiscardPile,
+        Dropzone
+    }
     
 
     public override void _Ready()
     {
         base._Ready();
 
-        Size = Vector2.Zero;
-        // spreadCurve.AddPoint(new Vector2(0, -1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
-        // spreadCurve.AddPoint(new Vector2(1, 1), 0, 0, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
         LoadJsonFiles();
         ResetCardCollection();
+
         UpdateCardsTargetPosition();
+        UpdateCardsZIndex();
     }
 
-    public void SetCardPile(Card card, CardDropzone.DropzoneType pile)
+    public void SetCardPile(Card card, DropzoneType dropzoneType)
     {
-        MaybeRemoveCardFromAnyPiles(card);
-        MaybeRemoveCardFromAnyDropzones(card);
 
-        if (pile == CardDropzone.DropzoneType.DiscardPile)
+        if(card == null) return;
+        if(dropzoneType == DropzoneType.Dropzone) return;
+
+        var pile = GetPile(dropzoneType);
+        SetCardDropzone(card, pile);
+
+        if (dropzoneType == DropzoneType.DiscardPile)
         {
-            // _discardPile.Add(card);
-            discardPile.AddCard(card);
             EmitSignal(nameof(DiscardPileUpdated));
         }
-        else if (pile == CardDropzone.DropzoneType.HandPile)
+        else if (dropzoneType == DropzoneType.HandPile)
         {
-            // _handPile.Add(card);
-            handPile.AddCard(card);
             EmitSignal(nameof(HandPileUpdated));
         }
-        else if (pile == CardDropzone.DropzoneType.DrawPile)
+        else if (dropzoneType == DropzoneType.DrawPile)
         {
-            // _drawPile.Add(card);
-            drawPile.AddCard(card);
             EmitSignal(nameof(DrawPileUpdated));
         }
-
-        UpdateCardsTargetPosition();
-        UpdateCardsZIndex();
     }
 
-    public override void SetCardDropzone(Card card, CardDropzone dropzone)
-    {
-        MaybeRemoveCardFromAnyPiles(card);
-        MaybeRemoveCardFromAnyDropzones(card);
-
-        base.SetCardDropzone(card, dropzone);
-
-        UpdateCardsTargetPosition();
-        UpdateCardsZIndex();
-    }
-
-    public override void RemoveCardFromGame(Card card)
-    {
-        MaybeRemoveCardFromAnyPiles(card);
-        MaybeRemoveCardFromAnyDropzones(card);
-
-        base.RemoveCardFromGame(card);
-
-        UpdateCardsTargetPosition();
-        UpdateCardsZIndex();
-    }
-
-    public Array<Card> GetCardsInPile(CardDropzone.DropzoneType pile)
-    {
-        if (pile == CardDropzone.DropzoneType.DiscardPile)
-            // return [.. _discardPile];
-            return discardPile.GetCards();
-        else if (pile == CardDropzone.DropzoneType.HandPile)
-            // return [.. _handPile];
-            return handPile.GetCards();
-        else if (pile == CardDropzone.DropzoneType.DrawPile)
-            // return [.. _drawPile];
-            return drawPile.GetCards();
-
-        else return new Array<Card>();
-    }
-
-    public CardDropzone GetPile(CardDropzone.DropzoneType pile){
-        if(pile == CardDropzone.DropzoneType.DrawPile){
+    
+    public CardDropzone GetPile(DropzoneType dropzoneType){
+        if(dropzoneType == DropzoneType.DrawPile){
             return drawPile;
         }
-        else if(pile == CardDropzone.DropzoneType.DiscardPile){
+        else if(dropzoneType == DropzoneType.DiscardPile){
             return discardPile;
         }
+        else if(dropzoneType == DropzoneType.HandPile){
+            return handPile;
+        }
         else return null;
     }
 
-    public Card GetCardInPileAt(CardDropzone.DropzoneType pile, int index)
+    public Card GetCardInPileAt(DropzoneType dropzoneType, int index)
     {
-        if(pile == CardDropzone.DropzoneType.HandPile && handPile.CardsCount() > index){
-            return handPile.GetCardAt(index);
+        var pile = GetPile(dropzoneType);
+        if(pile != null){
+            return pile.GetCardAt(index);
         }
-        else if(pile == CardDropzone.DropzoneType.DrawPile){
-            return drawPile.GetCardAt(index);
+        else{
+            return null;
         }
-        else if(pile == CardDropzone.DropzoneType.DiscardPile){
-            return discardPile.GetCardAt(index);
+    }
+    public Array<Card> GetCardsInPile(DropzoneType dropzoneType)
+    {
+        var pile = GetPile(dropzoneType);
+        if(pile != null){
+            return pile.GetCards();
         }
-        else return null;
+        else{
+            return new Array<Card>();
+        }
     }
 
-    public int GetCardPileSize(CardDropzone.DropzoneType piles){
+    public int GetCardPileSize(DropzoneType dropzoneType){
 
-        var pile = GetPile(piles);
+        var pile = GetPile(dropzoneType);
         if(pile != null){
             return pile.GetCards().Count;
         }
@@ -157,37 +132,53 @@ public partial class SimpleCardPileManager : CardManager
     
     }
 
-    protected void MaybeRemoveCardFromAnyPiles(Card card)
+    protected override void MaybeRemoveCardFromAnyDropzones(Card card)
     {
-
-        if (handPile.IsHolding(card))
+        var allDropzones = new Array<CardDropzone>();
+        GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+        foreach (var dropzone in allDropzones)
         {
-            handPile.RemoveCard(card);
-            EmitSignal(SignalName.HandPileUpdated);
-        }
-        else if(drawPile.IsHolding(card)){
-            drawPile.RemoveCard(card);
-            EmitSignal(SignalName.DrawPileUpdated);
-        }
-        else if(discardPile.IsHolding(card)){
-            discardPile.RemoveCard(card);
-            EmitSignal(SignalName.DiscardPileUpdated);
-        }
+            bool removed = false;
+            if (dropzone.IsHolding(card))
+            {
+                // GD.Print(card.Name);
+                dropzone.RemoveCard(card);
+                EmitSignal(nameof(CardRemovedFromDropzone), dropzone, card);
 
+                if(dropzone == handPile){
+                    EmitSignal(SignalName.HandPileUpdated);
+                }
+                else if(dropzone == drawPile){
+                    EmitSignal(SignalName.DrawPileUpdated);
+                }
+                else if(dropzone == discardPile){
+                    EmitSignal(SignalName.DiscardPileUpdated);
+                }
+
+                removed = true;
+            }
+
+            if(removed) break;
+        }
     }
 
-    protected void CreateCardInPile(string niceName, CardDropzone.DropzoneType pileToAddTo)
+    // protected Card CreateCardInPile(CardData cardData, DropzoneType pile)
+    // {
+    //     var cardUi = CreateCard(cardData);
+    //     SetCardPile(cardUi, pile);
+
+    //     return cardUi;
+    // }
+
+    protected Card CreateCardInPile(string niceName, DropzoneType dropzoneType)
     {
-        var cardUi = CreateCardFromJson(GetCardDataByNiceName(niceName));
+        if(dropzoneType == DropzoneType.Dropzone) return null;
 
-        if (pileToAddTo == CardDropzone.DropzoneType.HandPile)
-            cardUi.Position = handPile.Position;
-        else if (pileToAddTo == CardDropzone.DropzoneType.DiscardPile)
-            cardUi.Position = discardPile.Position;
-        else if (pileToAddTo == CardDropzone.DropzoneType.DrawPile)
-            cardUi.Position = drawPile.Position;
+        var json = GetCardDataByNiceName(niceName);
+        var cardUi = CreateCardFromJson(json);
+        SetCardPile(cardUi, dropzoneType);
 
-        SetCardPile(cardUi, pileToAddTo);
+        return cardUi;
     }
 
     protected void LoadJsonFiles()
@@ -197,17 +188,11 @@ public partial class SimpleCardPileManager : CardManager
     }
 
 
-    public void Reset()
-    {
-        ResetCardCollection();
-    }
-
     protected void ResetCardCollection()
     {
         foreach (Node child in GetChildren())
         {
             if(child.GetType() == typeof(Card)){
-                MaybeRemoveCardFromAnyPiles(child as Card);
                 MaybeRemoveCardFromAnyDropzones(child as Card);
                 RemoveCardFromGame(child as Card);
             }
@@ -216,9 +201,6 @@ public partial class SimpleCardPileManager : CardManager
         {
             var cardData = GetCardDataByNiceName(niceName);
             var cardUi = CreateCardFromJson(cardData);
-            
-            // _drawPile.Add(cardUi);
-            // _drawPile.Shuffle();
             drawPile.AddCard(cardUi);
         }
         drawPile.GetCards().Shuffle();
@@ -234,9 +216,9 @@ public partial class SimpleCardPileManager : CardManager
     public override void UpdateCardsTargetPosition()
     {
         drawPile.UpdateCardsTargetPositions();
-        handPile.UpdateCardsTargetPositions();
         while (handPile.CardsCount() > handPile.MaxHandSize)
-            SetCardPile(handPile.GetTopCard(), CardDropzone.DropzoneType.DiscardPile);
+            SetCardPile(handPile.GetTopCard(), DropzoneType.DiscardPile);
+        handPile.UpdateCardsTargetPositions();
         discardPile.UpdateCardsTargetPositions();
     }
 
@@ -252,9 +234,8 @@ public partial class SimpleCardPileManager : CardManager
         return handPile.IsHolding(cardUi);
     }
 
-    
 
-    public new void Draw(int numCards = 1)
+    public void DrawCard(int numCards = 1)
     {
         for (int i = 0; i < numCards; i++)
         {
@@ -262,23 +243,23 @@ public partial class SimpleCardPileManager : CardManager
                 continue;
             if(drawPile.CardsCount() > 0){
                 var card = drawPile.GetTopCard();
-                SetCardPile(card, CardDropzone.DropzoneType.HandPile);
+                SetCardPile(card, DropzoneType.HandPile);
             }
             else if(shuffleDiscardOnEmptyDraw && discardPile.CardsCount() > 0){
                 var discardCards = discardPile.GetCards().Duplicate();
                 foreach(var discardCard in discardCards){
-                    SetCardPile(discardCard, CardDropzone.DropzoneType.DrawPile);
+                    SetCardPile(discardCard, DropzoneType.DrawPile);
                 }
                 drawPile.GetCards().Shuffle();
                 var card = drawPile.GetTopCard();
-                SetCardPile(card, CardDropzone.DropzoneType.HandPile);
+                SetCardPile(card, DropzoneType.HandPile);
             }
         }
 
         UpdateCardsTargetPosition();
     }
 
-    public void Discard(Card card){
+    public void DiscardCard(Card card){
         SetCardDropzone(card, discardPile);
     }
 
@@ -287,7 +268,7 @@ public partial class SimpleCardPileManager : CardManager
         return handPile.IsFull();
     }
 
-    public bool IsPileEnabled(CardDropzone.DropzoneType dropzoneType){
+    public bool IsPileEnabled(DropzoneType dropzoneType){
         var pile = GetPile(dropzoneType);
         if(pile != null){
             return pile.IsInteractive();
@@ -316,11 +297,6 @@ public partial class SimpleCardPileManager : CardManager
         return cardUi;
     }
 
-    protected void CreateCardInPile(CardData cardData, CardDropzone.DropzoneType pile)
-    {
-        var cardUi = CreateCard(cardData);
-        SetCardPile(cardUi, pile);
-    }
 
     protected Dictionary GetCardDataByNiceName(string niceName)
     {

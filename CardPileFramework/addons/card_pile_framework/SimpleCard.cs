@@ -40,13 +40,13 @@ public partial class SimpleCard : Card
                 }
 
                 // Click the draw pile to draw a card.
-                if (m.GetCardPileSize(CardDropzone.DropzoneType.DrawPile) > 0 && 
-                        m.IsPileEnabled(CardDropzone.DropzoneType.HandPile) &&
-                        m.GetCardsInPile(CardDropzone.DropzoneType.DrawPile).Contains(this) && 
+                if (m.GetCardPileSize(SimpleCardPileManager.DropzoneType.DrawPile) > 0 && 
+                        m.IsPileEnabled(SimpleCardPileManager.DropzoneType.HandPile) &&
+                        m.GetCardsInPile(SimpleCardPileManager.DropzoneType.DrawPile).Contains(this) && 
                         !m.IsAnyCardClicked() && 
                         m.clickDrawPileToDraw)
                 {
-                    m.Draw(1);
+                    m.DrawCard(1);
                 }
 
             }

@@ -87,11 +87,11 @@ public partial class CardBattle : Node2D
 
         Energy = TURN_ENERGY;
         Shield = 0;
-        foreach(var card in cardPileManager.GetCardsInPile(CardDropzone.DropzoneType.HandPile)){
-            cardPileManager.SetCardPile(card, CardDropzone.DropzoneType.DiscardPile);
+        foreach(var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.DropzoneType.HandPile)){
+            cardPileManager.SetCardPile(card, SimpleCardPileManager.DropzoneType.DiscardPile);
         }
 
-        cardPileManager.Draw(TURN_DRAW);
+        cardPileManager.DrawCard(TURN_DRAW);
 
     }
 

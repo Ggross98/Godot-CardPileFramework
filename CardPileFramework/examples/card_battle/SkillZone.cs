@@ -36,6 +36,6 @@ public partial class SkillZone : CardDropzone
         }
 
         var manager = (SimpleCardPileManager)base.manager;
-        manager.Discard(cardUi);
+        manager.DiscardCard(cardUi);
     }
 }

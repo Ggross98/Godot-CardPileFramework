@@ -14,7 +14,9 @@ public partial class Card : Control
     [Signal]
     public delegate void CardUnhoveredEventHandler(Card card);
     [Signal]
-    public delegate void CardClickedEventHandler(Card card);
+    public delegate void CardLeftClickedEventHandler(Card card);
+    [Signal]
+    public delegate void CardRightClickedEventHandler(Card card);
     [Signal]
     public delegate void CardDroppedEventHandler(Card card);
     [Signal] 
@@ -150,16 +152,18 @@ public partial class Card : Control
 
     protected virtual void OnGuiInput(InputEvent @event)
     {
-        if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left)
+        if (@event is InputEventMouseButton mouseEvent)
         {
-
             if (mouseEvent.Pressed)
             {
                 if (IsInteractive())
                 {
                     IsClicked = true;
                     Rotation = 0;
-                    EmitSignal(SignalName.CardClicked, this);
+                    if(mouseEvent.ButtonIndex == MouseButton.Left)
+                        EmitSignal(SignalName.CardLeftClicked, this);
+                    else if(mouseEvent.ButtonIndex == MouseButton.Right)
+                        EmitSignal(SignalName.CardRightClicked, this);
                 }
             }
             else

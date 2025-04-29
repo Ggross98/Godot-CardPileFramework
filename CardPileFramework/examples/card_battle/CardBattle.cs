@@ -53,7 +53,7 @@ public partial class CardBattle : Node2D
             hoveringCard = null;
         };
 
-        cardPileManager.CardClicked += (Card cardUI) => {
+        cardPileManager.CardLeftClicked += (Card cardUI) => {
             targetingLine.SetPointPosition(0, cardUI.Position + cardUI.Size / 2);
             targetingLine.Visible = true;
         };

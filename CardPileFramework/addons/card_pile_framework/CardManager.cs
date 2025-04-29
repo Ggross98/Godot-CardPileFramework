@@ -14,24 +14,51 @@ public partial class CardManager : Control
     [Signal] public delegate void CardAddedToDropzoneEventHandler(CardDropzone dropzone, Card card);
     [Signal] public delegate void CardHoveredEventHandler(Card card);
     [Signal] public delegate void CardUnhoveredEventHandler(Card card);
-    [Signal] public delegate void CardClickedEventHandler(Card card);
+    [Signal] public delegate void CardLeftClickedEventHandler(Card card);
+    [Signal] public delegate void CardRightClickedEventHandler(Card card);
     [Signal] public delegate void CardDroppedEventHandler(Card card);
     [Signal] public delegate void CardRemovedFromGameEventHandler(Card card);
 
-    protected void OnCardRemovedFromDropzone(CardDropzone dropzone, Card card) 
-        => EmitSignal(SignalName.CardRemovedFromDropzone, dropzone, card);
-    protected void OnCardAddedFromDropzone(CardDropzone dropzone, Card card) 
-        => EmitSignal(SignalName.CardAddedToDropzone, dropzone, card);
-    protected void OnCardHovered(Card card) 
-        => EmitSignal(SignalName.CardHovered, card);
-    protected void OnCardUnhovered(Card card) 
-        => EmitSignal(SignalName.CardUnhovered, card);
-    protected void OnCardClicked(Card card) 
-        => EmitSignal(SignalName.CardClicked, card);
-    protected void OnCardDropped(Card card) 
-        => EmitSignal(SignalName.CardDropped, card);
-    protected void OnCardRemovedFromGame(Card card) 
-        => EmitSignal(SignalName.CardRemovedFromGame, card);
+    protected virtual void OnCardRemovedFromDropzone(CardDropzone dropzone, Card card) 
+    {
+        EmitSignal(SignalName.CardRemovedFromDropzone, dropzone, card);
+    }
+
+    protected virtual void OnCardAddedFromDropzone(CardDropzone dropzone, Card card) 
+    {
+        EmitSignal(SignalName.CardAddedToDropzone, dropzone, card);
+    }
+
+    protected virtual void OnCardHovered(Card card) 
+    {   
+        EmitSignal(SignalName.CardHovered, card);
+    }
+        
+    protected virtual void OnCardUnhovered(Card card) 
+    {
+        EmitSignal(SignalName.CardUnhovered, card);
+    }
+    
+    protected virtual void OnCardLeftClicked(Card card) 
+    {
+        EmitSignal(SignalName.CardLeftClicked, card);
+    }
+
+    protected virtual void OnCardRightClicked(Card card)
+    {
+        EmitSignal(SignalName.CardRightClicked, card);
+    }
+
+    protected virtual void OnCardDropped(Card card) 
+    {
+        EmitSignal(SignalName.CardDropped, card);
+    }
+
+    protected virtual void OnCardRemovedFromGame(Card card) 
+    {
+        EmitSignal(SignalName.CardRemovedFromGame, card);
+    }
+
     #endregion
 
     /// <summary>
@@ -55,7 +82,7 @@ public partial class CardManager : Control
         // Connect signals
         cardUi.CardHovered += OnCardHovered;
         cardUi.CardUnhovered += OnCardUnhovered;
-        cardUi.CardClicked += OnCardClicked;
+        cardUi.CardLeftClicked += OnCardLeftClicked;
         cardUi.CardDropped += OnCardDropped;
 
         AddChild(cardUi);

@@ -1,6 +1,4 @@
 namespace Ggross.CardPileFramework;
-
-using System.ComponentModel;
 using Godot;
 using Godot.Collections;
 
@@ -49,17 +47,25 @@ public partial class CardDropzone : Control
     }
 
     protected virtual void OnMouseEntered(){
-        GD.Print("Mouse Entered: ", Name);
+        GD.Print("Mouse Entered Dropzone: ", Name);
     }
 
     protected virtual void OnMouseExited(){
-
+        GD.Print("Mouse Exited Dropzone: ", Name);
     }
 
-
-    public virtual void DropCard(Card cardUi)
+    /// <summary>
+    /// Drop the card on the zone. Not added to the zone!
+    /// </summary>
+    /// <param name="cardUi"></param>
+    public void DropCard(Card cardUi)
     {
+        OnCardDropped(cardUi);
+    }
 
+    protected virtual void OnCardDropped(Card cardUi)
+    {
+        GD.Print("Card: ", cardUi.Name, "Dropped on ", Name);
     }
 
     public virtual bool CanDropCard(Card cardUi)
@@ -123,16 +129,30 @@ public partial class CardDropzone : Control
         return [.. _holdingCards]; 
     }
 
+    /// <summary>
+    /// Add the card to the dropzone
+    /// </summary>
+    /// <param name="cardUi"></param>
     public void AddCard(Card cardUi)
     {
-        _holdingCards.Add(cardUi);
-        // UpdateTargetPositions();
+        OnCardAdded(cardUi);
     }
 
+    protected virtual void OnCardAdded(Card cardUi){
+        _holdingCards.Add(cardUi);
+    }
+
+    /// <summary>
+    /// Remove the card from the dropzone
+    /// </summary>
+    /// <param name="cardUi"></param>
     public void RemoveCard(Card cardUi)
     {
+        OnCardRemoved(cardUi);
+    }
+
+    protected virtual void OnCardRemoved(Card cardUi){
         _holdingCards.Remove(cardUi);
-        // UpdateTargetPositions();
     }
 
     public virtual void UpdateCardsTargetPositions(bool instantlyMove = false)

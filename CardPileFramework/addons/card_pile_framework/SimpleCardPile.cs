@@ -1,6 +1,5 @@
 using Ggross.CardPileFramework;
 using Godot;
-using System;
 
 public partial class SimpleCardPile : CardDropzone
 {
@@ -13,7 +12,7 @@ public partial class SimpleCardPile : CardDropzone
     [Export]
     public bool canDragTopCard = true;
 
-    public override void DropCard(Card cardUi)
+    protected override void OnCardDropped(Card cardUi)
     {
         if (manager != null)
         {

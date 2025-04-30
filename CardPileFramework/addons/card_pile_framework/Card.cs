@@ -1,9 +1,6 @@
 namespace Ggross.CardPileFramework;
-
 using Godot;
-using System;
 using Godot.Collections;
-using System.Buffers;
 
 [Tool]
 public partial class Card : Control
@@ -174,8 +171,8 @@ public partial class Card : Control
                     IsMouseHovering = false;
                     Rotation = 0;
 
-                    var allDropzones = new Godot.Collections.Array();
-                    GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+                    var allDropzones = new Array<CardDropzone>();
+                    manager.GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
 
                     foreach (CardDropzone dropzone in allDropzones)
                     {
@@ -196,16 +193,16 @@ public partial class Card : Control
         }
     }
 
-    protected void GetDropzones(Node node, string className, Godot.Collections.Array result)
-    {
-        if (node is CardDropzone)
-        {
-            result.Add(node);
-        }
+    // protected void GetDropzones(Node node, string className, Godot.Collections.Array result)
+    // {
+    //     if (node is CardDropzone)
+    //     {
+    //         result.Add(node);
+    //     }
 
-        foreach (Node child in node.GetChildren())
-        {
-            GetDropzones(child, className, result);
-        }
-    }
+    //     foreach (Node child in node.GetChildren())
+    //     {
+    //         GetDropzones(child, className, result);
+    //     }
+    // }
 }

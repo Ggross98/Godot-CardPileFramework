@@ -43,10 +43,8 @@ public partial class Enemy : CardDropzone
         portrait.SelfModulate = Colors.White;
     }
 
-    public override void DropCard(Card cardUi)
+    protected override void OnCardDropped(Card cardUi)
     {
-        base.DropCard(cardUi);
-
         var data = (MyCardData)((MyCard)cardUi).cardData;
         GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
         HP -= data.value;

@@ -1,8 +1,6 @@
 namespace Ggross.CardPileFramework;
-
 using Godot;
 using Godot.Collections;
-
 
 /// <summary>
 /// Base class of managers which control card objects and piles.
@@ -177,7 +175,7 @@ public partial class CardManager : Control
     /// <param name="node"></param>
     /// <param name="className"></param>
     /// <param name="result"></param>
-    protected void GetDropzones(Node node, string className, Array<CardDropzone> result)
+    public virtual void GetDropzones(Node node, string className, Array<CardDropzone> result)
     {
         if (node is CardDropzone dropzone){
             // if(dropzone.pilesType == CardDropzone.DropzoneType.Dropzone)

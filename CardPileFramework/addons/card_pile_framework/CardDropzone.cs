@@ -65,7 +65,7 @@ public partial class CardDropzone : Control
 
     protected virtual void OnCardDropped(Card cardUi)
     {
-        GD.Print("Card: ", cardUi.Name, "Dropped on ", Name);
+        GD.Print("Card: ", cardUi.Name, "Dropped on Dropzone:", Name);
     }
 
     public virtual bool CanDropCard(Card cardUi)
@@ -139,6 +139,7 @@ public partial class CardDropzone : Control
     }
 
     protected virtual void OnCardAdded(Card cardUi){
+        GD.Print("Card: ", cardUi.Name, "Added to Dropzone:", Name);
         _holdingCards.Add(cardUi);
     }
 
@@ -152,6 +153,7 @@ public partial class CardDropzone : Control
     }
 
     protected virtual void OnCardRemoved(Card cardUi){
+        GD.Print("Card: ", cardUi.Name, "Removed from Dropzone:", Name);
         _holdingCards.Remove(cardUi);
     }
 

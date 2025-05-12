@@ -1,38 +1,62 @@
+using System;
 using Ggross.CardPileFramework;
 using Godot;
-using System;
 
 public partial class CardBattle : Node2D
 {
-    [Export] private SimpleCardPileManager cardPileManager;
-    [Export] private Label energyLabel, shieldLabel;
-    [Export] private Button endTurnButton;
-    [Export] private PanelContainer descriptionPanel;
-    [Export] private RichTextLabel descriptionLabel;
-    [Export] private Line2D targetingLine;
+    [Export]
+    private SimpleCardPileManager cardPileManager;
 
-    public const int TURN_ENERGY = 4, MAX_HP = 50, TURN_DRAW = 5;
-    private int energy, shield, hp;
-    public int Energy {
+    [Export]
+    private Label energyLabel,
+        shieldLabel;
+
+    [Export]
+    private Button endTurnButton;
+
+    [Export]
+    private PanelContainer descriptionPanel;
+
+    [Export]
+    private RichTextLabel descriptionLabel;
+
+    [Export]
+    private Line2D targetingLine;
+
+    public const int TURN_ENERGY = 4,
+        MAX_HP = 50,
+        TURN_DRAW = 5;
+    private int energy,
+        shield,
+        hp;
+    public int Energy
+    {
         get { return energy; }
-        set { 
+        set
+        {
             energy = value;
             UpdateDisplay();
         }
     }
-    public int Shield {
+    public int Shield
+    {
         get { return shield; }
-        set {
+        set
+        {
             shield = value;
             UpdateDisplay();
         }
     }
-    public int HP {
+    public int HP
+    {
         get { return hp; }
-        set {
+        set
+        {
             hp = value;
-            if (hp < 0) hp = 0;
-            if (hp > MAX_HP) hp = MAX_HP;
+            if (hp < 0)
+                hp = 0;
+            if (hp > MAX_HP)
+                hp = MAX_HP;
             UpdateDisplay();
         }
     }
@@ -41,24 +65,28 @@ public partial class CardBattle : Node2D
 
     public override void _Ready()
     {
-        cardPileManager.CardHovered += (Card cardUI) => {
+        cardPileManager.CardHovered += (Card cardUI) =>
+        {
             var tmp = (MyCard)cardUI;
             descriptionLabel.Text = FormatCardDescription(tmp);
             descriptionPanel.Visible = true;
             hoveringCard = tmp;
         };
 
-        cardPileManager.CardUnhovered += (Card cardUI) => {
+        cardPileManager.CardUnhovered += (Card cardUI) =>
+        {
             descriptionPanel.Visible = false;
             hoveringCard = null;
         };
 
-        cardPileManager.CardLeftClicked += (Card cardUI) => {
+        cardPileManager.CardLeftClicked += (Card cardUI) =>
+        {
             targetingLine.SetPointPosition(0, cardUI.Position + cardUI.Size / 2);
             targetingLine.Visible = true;
         };
 
-        cardPileManager.CardDropped += (Card cardUI) => {
+        cardPileManager.CardDropped += (Card cardUI) =>
+        {
             targetingLine.Visible = false;
         };
 
@@ -71,41 +99,48 @@ public partial class CardBattle : Node2D
     {
         base._Process(delta);
 
-        if(hoveringCard != null){
+        if (hoveringCard != null)
+        {
             var targetPos = hoveringCard.Position;
             descriptionPanel.Position = targetPos + new Vector2(0, -200);
             targetingLine.SetPointPosition(1, GetGlobalMousePosition());
         }
     }
 
-    public void OnEndButtonPressed(){
+    public void OnEndButtonPressed()
+    {
         EndTurn();
         StartTurn();
     }
 
-    public void StartTurn(){
-
+    public void StartTurn()
+    {
         Energy = TURN_ENERGY;
         Shield = 0;
-        foreach(var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.DropzoneType.HandPile)){
+        foreach (
+            var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.DropzoneType.HandPile)
+        )
+        {
             cardPileManager.SetCardPile(card, SimpleCardPileManager.DropzoneType.DiscardPile);
         }
 
         cardPileManager.DrawCard(TURN_DRAW);
-
     }
 
-    public void EndTurn(){
-        
-    }
+    public void EndTurn() { }
 
-    public void UpdateDisplay(){
+    public void UpdateDisplay()
+    {
         energyLabel.Text = string.Format("{0}/{1}", energy, TURN_ENERGY);
         shieldLabel.Text = string.Format("{0}", shield);
     }
 
-    public string FormatCardDescription(MyCard card){
-        var data = (MyCardData)card.cardData;
-        return data.description.Replace("{value}", string.Format("[color=red]{0}[/color]", data.value));
+    public string FormatCardDescription(MyCard card)
+    {
+        var data = (MyCardData)card.CardData;
+        return data.description.Replace(
+            "{value}",
+            string.Format("[color=red]{0}[/color]", data.value)
+        );
     }
 }

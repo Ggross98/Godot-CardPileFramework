@@ -1,16 +1,25 @@
 namespace Ggross.CardPileFramework;
-using Godot;
+
 using System;
+using Godot;
 
 /// <summary>
 /// Hand pile
 /// </summary>
 public partial class SimpleCardHand : CardDropzone
 {
-    [Export] public int MaxHandSize {get; protected set;}
-    [Export] public int MaxHandSpread {get; protected set;}
-    [Export] protected Curve handRotationCurve, handVerticalCurve;
-    [Export] protected bool handFaceUp = true;
+    [Export]
+    public int MaxHandSize { get; protected set; }
+
+    [Export]
+    public int MaxHandSpread { get; protected set; }
+
+    [Export]
+    protected Curve handRotationCurve,
+        handVerticalCurve;
+
+    [Export]
+    protected bool handFaceUp = true;
 
     public override void UpdateCardsTargetPositions(bool instantlyMove = false)
     {
@@ -20,7 +29,7 @@ public partial class SimpleCardHand : CardDropzone
             cardUi.MoveToFront();
             var handRatio = _holdingCards.Count > 1 ? (float)i / (_holdingCards.Count - 1) : 0.5f;
 
-            var targetPos = Position + new Vector2(Size.X/2, 0);
+            var targetPos = Position + new Vector2(Size.X / 2, 0);
 
             var cardSpacing = MaxHandSpread / (_holdingCards.Count + 1);
             targetPos.X += (i + 1) * cardSpacing - MaxHandSpread / 2.0f;
@@ -31,11 +40,11 @@ public partial class SimpleCardHand : CardDropzone
             cardUi.SetDirection(handFaceUp ? Vector2.Up : Vector2.Down);
 
             cardUi.TargetPosition = targetPos;
-            if(instantlyMove){
+            if (instantlyMove)
+            {
                 cardUi.Position = targetPos;
             }
         }
-        
     }
 
     public override void UpdateCardsZIndex()
@@ -52,14 +61,16 @@ public partial class SimpleCardHand : CardDropzone
         }
     }
 
-    public bool IsFull(){
+    public bool IsFull()
+    {
         return _holdingCards.Count >= MaxHandSize;
     }
 
     public override bool IsCardInteractive(Card card)
     {
-        if(base.IsCardInteractive(card)){
-            return !manager.IsAnyCardClicked();
+        if (base.IsCardInteractive(card))
+        {
+            return !Manager.IsAnyCardClicked();
         }
         return false;
     }

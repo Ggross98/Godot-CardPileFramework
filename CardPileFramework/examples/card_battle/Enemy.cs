@@ -1,22 +1,27 @@
+using System;
 using Ggross.CardPileFramework;
 using Godot;
-using System;
 
 public partial class Enemy : CardDropzone
 {
+    [Export]
+    private Label HPLabel;
 
-    [Export] private Label HPLabel;
-    [Export] private TextureRect portrait;
+    [Export]
+    private TextureRect portrait;
 
-    private int hp, maxHP;
+    private int hp,
+        maxHP;
     public int HP
     {
         get { return hp; }
         set
         {
             hp = value;
-            if (hp < 0) hp = 0;
-            if (hp > maxHP) hp = maxHP;
+            if (hp < 0)
+                hp = 0;
+            if (hp > maxHP)
+                hp = maxHP;
             UpdateDisplay();
         }
     }
@@ -45,26 +50,26 @@ public partial class Enemy : CardDropzone
 
     protected override void OnCardDropped(Card cardUi)
     {
-        var data = (MyCardData)((MyCard)cardUi).cardData;
+        var data = (MyCardData)((MyCard)cardUi).CardData;
         GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
         HP -= data.value;
         UpdateDisplay();
 
-        var manager = (SimpleCardPileManager)base.manager;
+        var manager = (SimpleCardPileManager)Manager;
         manager.DiscardCard(cardUi);
     }
 
-
     public override bool CanDropCard(Card cardUi)
     {
+        if (!base.CanDropCard(cardUi))
+            return false;
 
-        if (!base.CanDropCard(cardUi)) return false;
-
-        if (cardUi.GetType() == typeof(MyCard) &&
-
-            ((MyCard)cardUi).cardData.GetType() == typeof(MyCardData))
+        if (
+            cardUi.GetType() == typeof(MyCard)
+            && ((MyCard)cardUi).CardData.GetType() == typeof(MyCardData)
+        )
         {
-            var data = (MyCardData)((MyCard)cardUi).cardData;
+            var data = (MyCardData)((MyCard)cardUi).CardData;
             var cost = data.cost;
             var energy = GetNode<CardBattle>("/root/CardBattle").Energy;
 
@@ -81,4 +86,3 @@ public partial class Enemy : CardDropzone
         HPLabel.Text = string.Format("{0}/{1}", hp, maxHP);
     }
 }
-

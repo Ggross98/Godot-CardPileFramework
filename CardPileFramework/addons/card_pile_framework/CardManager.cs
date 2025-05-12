@@ -1,4 +1,5 @@
 namespace Ggross.CardPileFramework;
+
 using Godot;
 using Godot.Collections;
 
@@ -8,36 +9,51 @@ using Godot.Collections;
 public partial class CardManager : Control
 {
     #region Signals
-    [Signal] public delegate void CardRemovedFromDropzoneEventHandler(CardDropzone dropzone, Card card);
-    [Signal] public delegate void CardAddedToDropzoneEventHandler(CardDropzone dropzone, Card card);
-    [Signal] public delegate void CardHoveredEventHandler(Card card);
-    [Signal] public delegate void CardUnhoveredEventHandler(Card card);
-    [Signal] public delegate void CardLeftClickedEventHandler(Card card);
-    [Signal] public delegate void CardRightClickedEventHandler(Card card);
-    [Signal] public delegate void CardDroppedEventHandler(Card card);
-    [Signal] public delegate void CardRemovedFromGameEventHandler(Card card);
+    [Signal]
+    public delegate void CardRemovedFromDropzoneEventHandler(CardDropzone dropzone, Card card);
 
-    protected virtual void OnCardRemovedFromDropzone(CardDropzone dropzone, Card card) 
+    [Signal]
+    public delegate void CardAddedToDropzoneEventHandler(CardDropzone dropzone, Card card);
+
+    [Signal]
+    public delegate void CardHoveredEventHandler(Card card);
+
+    [Signal]
+    public delegate void CardUnhoveredEventHandler(Card card);
+
+    [Signal]
+    public delegate void CardLeftClickedEventHandler(Card card);
+
+    [Signal]
+    public delegate void CardRightClickedEventHandler(Card card);
+
+    [Signal]
+    public delegate void CardDroppedEventHandler(Card card);
+
+    [Signal]
+    public delegate void CardRemovedFromGameEventHandler(Card card);
+
+    protected virtual void OnCardRemovedFromDropzone(CardDropzone dropzone, Card card)
     {
         EmitSignal(SignalName.CardRemovedFromDropzone, dropzone, card);
     }
 
-    protected virtual void OnCardAddedFromDropzone(CardDropzone dropzone, Card card) 
+    protected virtual void OnCardAddedFromDropzone(CardDropzone dropzone, Card card)
     {
         EmitSignal(SignalName.CardAddedToDropzone, dropzone, card);
     }
 
-    protected virtual void OnCardHovered(Card card) 
-    {   
+    protected virtual void OnCardHovered(Card card)
+    {
         EmitSignal(SignalName.CardHovered, card);
     }
-        
-    protected virtual void OnCardUnhovered(Card card) 
+
+    protected virtual void OnCardUnhovered(Card card)
     {
         EmitSignal(SignalName.CardUnhovered, card);
     }
-    
-    protected virtual void OnCardLeftClicked(Card card) 
+
+    protected virtual void OnCardLeftClicked(Card card)
     {
         EmitSignal(SignalName.CardLeftClicked, card);
     }
@@ -47,12 +63,12 @@ public partial class CardManager : Control
         EmitSignal(SignalName.CardRightClicked, card);
     }
 
-    protected virtual void OnCardDropped(Card card) 
+    protected virtual void OnCardDropped(Card card)
     {
         EmitSignal(SignalName.CardDropped, card);
     }
 
-    protected virtual void OnCardRemovedFromGame(Card card) 
+    protected virtual void OnCardRemovedFromGame(Card card)
     {
         EmitSignal(SignalName.CardRemovedFromGame, card);
     }
@@ -62,7 +78,8 @@ public partial class CardManager : Control
     /// <summary>
     /// Card UI prefab
     /// </summary>
-    [Export] protected PackedScene cardUIPrefab;
+    [Export]
+    protected PackedScene cardUIPrefab;
 
     /// <summary>
     /// Create a card UI object, then add it as child.
@@ -72,10 +89,10 @@ public partial class CardManager : Control
     protected Card CreateCard(CardData cardData)
     {
         var cardUi = cardUIPrefab.Instantiate<Card>();
-        
+        cardUi.Manager = this;
+
         // UI initialization
-        cardUi.cardData = cardData;
-        cardUi.UpdateDisplay();
+        cardUi.CardData = cardData;
 
         // Connect signals
         cardUi.CardHovered += OnCardHovered;
@@ -90,7 +107,7 @@ public partial class CardManager : Control
     protected void CreateCardInDropzone(CardData cardData, CardDropzone dropzone)
     {
         var cardUi = CreateCard(cardData);
-        
+
         SetCardDropzone(cardUi, dropzone);
     }
 
@@ -100,7 +117,6 @@ public partial class CardManager : Control
     /// <param name="card"></param>
     public virtual void RemoveCardFromGame(Card card)
     {
-       
         MaybeRemoveCardFromAnyDropzones(card);
 
         EmitSignal(nameof(CardRemovedFromGame), card);
@@ -115,9 +131,10 @@ public partial class CardManager : Control
     /// </summary>
     /// <param name="card"></param>
     /// <param name="dropzone"></param>
-    public virtual void SetCardDropzone(Card card, CardDropzone dropzone){
-        
-        if(card == null || dropzone == null) return;
+    public virtual void SetCardDropzone(Card card, CardDropzone dropzone)
+    {
+        if (card == null || dropzone == null)
+            return;
 
         MaybeRemoveCardFromAnyDropzones(card);
 
@@ -147,7 +164,8 @@ public partial class CardManager : Control
 
                 removed = true;
             }
-            if(removed) break;
+            if (removed)
+                break;
         }
     }
 
@@ -160,7 +178,7 @@ public partial class CardManager : Control
     {
         var allDropzones = new Array<CardDropzone>();
         GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
-        
+
         foreach (var dropzone in allDropzones)
         {
             if (dropzone.IsHolding(card))
@@ -177,12 +195,13 @@ public partial class CardManager : Control
     /// <param name="result"></param>
     public virtual void GetDropzones(Node node, string className, Array<CardDropzone> result)
     {
-        if (node is CardDropzone dropzone){
+        if (node is CardDropzone dropzone)
+        {
             // if(dropzone.pilesType == CardDropzone.DropzoneType.Dropzone)
             //     result.Add(dropzone);
             result.Add(dropzone);
         }
-            
+
         foreach (Node child in node.GetChildren())
             GetDropzones(child, className, result);
     }
@@ -190,13 +209,9 @@ public partial class CardManager : Control
     /// <summary>
     /// Update the positions.
     /// </summary>
-    public virtual void UpdateCardsTargetPosition(){
-        
-    }
+    public virtual void UpdateCardsTargetPosition() { }
 
-    public virtual void UpdateCardsZIndex(){
-        
-    }
+    public virtual void UpdateCardsZIndex() { }
 
     public bool IsAnyCardClicked()
     {
@@ -205,7 +220,8 @@ public partial class CardManager : Control
 
         foreach (var dropzone in allDropzones)
         {
-            if(dropzone.IsAnyCardClicked()){
+            if (dropzone.IsAnyCardClicked())
+            {
                 return true;
             }
         }

@@ -1,4 +1,5 @@
 namespace Ggross.CardPileFramework;
+
 using Godot;
 using Godot.Collections;
 
@@ -8,60 +9,82 @@ public partial class Card : Control
     #region Signals
     [Signal]
     public delegate void CardHoveredEventHandler(Card card);
+
     [Signal]
     public delegate void CardUnhoveredEventHandler(Card card);
+
     [Signal]
     public delegate void CardLeftClickedEventHandler(Card card);
+
     [Signal]
     public delegate void CardRightClickedEventHandler(Card card);
+
     [Signal]
     public delegate void CardDroppedEventHandler(Card card);
-    [Signal] 
-    public delegate void CardDataUpdatedEventHandler(Card card);    
+
+    [Signal]
+    public delegate void CardDataUpdatedEventHandler(Card card);
     #endregion
-    
 
-    [Export] public CardData cardData;
-    [Export] protected TextureRect frontface, backface;    
 
-    public bool IsClicked {get; protected set;}
-    public bool IsMouseHovering {get; protected set;}
-    public Vector2 TargetPosition {get; set;}
-    public float ReturnSpeed {get; set;}
-    public int HoverDistance {get; set;}
-    public bool DragWhenClicked {get; set;}
+    protected CardData cardData;
+    public CardData CardData
+    {
+        get { return cardData; }
+        set
+        {
+            cardData = value;
+            cardData.Changed += OnCardDataUpdated;
+            OnCardDataUpdated();
+        }
+    }
 
-    protected CardManager manager;
+    [Export]
+    protected TextureRect frontface,
+        backface;
+
+    public bool IsClicked { get; protected set; }
+    public bool IsMouseHovering { get; protected set; }
+    public Vector2 TargetPosition { get; set; }
+    public float ReturnSpeed { get; set; }
+    public int HoverDistance { get; set; }
+    public bool DragWhenClicked { get; set; }
+
+    public CardManager Manager { get; set; }
 
     public override void _Ready()
     {
-        manager = GetParent<CardManager>();
+        Manager = GetParent<CardManager>();
 
         MouseEntered += OnMouseEntered;
         MouseExited += OnMouseExited;
         GuiInput += OnGuiInput;
-
     }
 
     public override void _Process(double delta)
     {
         if (IsClicked)
         {
-            if(DragWhenClicked){
+            if (DragWhenClicked)
+            {
                 TargetPosition = GetGlobalMousePosition() - CustomMinimumSize * 0.5f;
             }
             Position = TargetPosition;
         }
-        else{
-            if(Position != TargetPosition){
+        else
+        {
+            if (Position != TargetPosition)
+            {
                 Position = MathUtils.Vector2Lerp(Position, TargetPosition, ReturnSpeed);
             }
         }
     }
 
-    public virtual void UpdateDisplay(){
+    public virtual void UpdateDisplay()
+    {
         // GD.Print(cardData.GetPropertyList());
-        if(cardData != null){
+        if (cardData != null)
+        {
             var frontfaceTexturePath = cardData.Get("frontface_texture_path").As<string>();
             var backfaceTexturePath = cardData.Get("backface_texture_path").As<string>();
 
@@ -74,17 +97,17 @@ public partial class Card : Control
                 PivotOffset = frontface.Texture.GetSize() / 2;
             }
 
-            if(!string.IsNullOrEmpty(backfaceTexturePath)){
+            if (!string.IsNullOrEmpty(backfaceTexturePath))
+            {
                 backface.Texture = GD.Load<Texture2D>(backfaceTexturePath);
             }
 
-            
             MouseFilter = MouseFilterEnum.Pass;
         }
-        
     }
 
-    public void SetControlParameters(float _returnSpeed, int _hoverDistance, bool _dragWhenClicked){
+    public void SetControlParameters(float _returnSpeed, int _hoverDistance, bool _dragWhenClicked)
+    {
         ReturnSpeed = _returnSpeed;
         HoverDistance = _hoverDistance;
         DragWhenClicked = _dragWhenClicked;
@@ -108,18 +131,29 @@ public partial class Card : Control
 
     public virtual bool IsInteractive()
     {
-        if(!Visible) return false;
-        if(manager == null) return true;
-        else{
-            var dropzone = manager.GetCardDropzone(this);
+        if (!Visible)
+            return false;
+        if (Manager == null)
+            return true;
+        else
+        {
+            var dropzone = Manager.GetCardDropzone(this);
             if (dropzone != null)
             {
                 return dropzone.IsCardInteractive(this);
             }
-            else{
+            else
+            {
                 return true;
             }
         }
+    }
+
+    protected virtual void OnCardDataUpdated()
+    {
+        UpdateDisplay();
+
+        EmitSignal(SignalName.CardDataUpdated);
     }
 
     protected virtual void OnMouseEntered()
@@ -129,14 +163,13 @@ public partial class Card : Control
             IsMouseHovering = true;
 
             TargetPosition = TargetPosition += new Vector2(0, -HoverDistance);
-            
+
             EmitSignal(SignalName.CardHovered, this);
         }
     }
 
     protected virtual void OnMouseExited()
     {
-
         if (!IsClicked && IsMouseHovering)
         {
             IsMouseHovering = false;
@@ -157,10 +190,14 @@ public partial class Card : Control
                 {
                     IsClicked = true;
                     Rotation = 0;
-                    if(mouseEvent.ButtonIndex == MouseButton.Left)
+                    if (mouseEvent.ButtonIndex == MouseButton.Left)
+                    {
                         EmitSignal(SignalName.CardLeftClicked, this);
-                    else if(mouseEvent.ButtonIndex == MouseButton.Right)
+                    }
+                    else if (mouseEvent.ButtonIndex == MouseButton.Right)
+                    {
                         EmitSignal(SignalName.CardRightClicked, this);
+                    }
                 }
             }
             else
@@ -172,7 +209,7 @@ public partial class Card : Control
                     Rotation = 0;
 
                     var allDropzones = new Array<CardDropzone>();
-                    manager.GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+                    Manager.GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
 
                     foreach (CardDropzone dropzone in allDropzones)
                     {
@@ -185,7 +222,7 @@ public partial class Card : Control
                             }
                         }
                     }
-                    
+
                     EmitSignal(SignalName.CardUnhovered, this);
                     EmitSignal(SignalName.CardDropped, this);
                 }

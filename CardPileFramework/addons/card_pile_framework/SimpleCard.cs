@@ -1,8 +1,7 @@
 namespace Ggross.CardPileFramework;
 
-using Ggross.CardPileFramework;
-using Godot;
 using System;
+using Godot;
 
 /// <summary>
 /// Implementation of a simple card UI object considering draw, discard and hand piles
@@ -12,16 +11,18 @@ public partial class SimpleCard : Card
     protected override void OnMouseEntered()
     {
         base.OnMouseEntered();
-        if(IsInteractive()) {
-            ((SimpleCardPileManager)manager).UpdateCardsZIndex();
+        if (IsInteractive())
+        {
+            ((SimpleCardPileManager)Manager).UpdateCardsZIndex();
         }
     }
 
     protected override void OnMouseExited()
     {
         base.OnMouseExited();
-        if (!IsClicked && IsMouseHovering){
-            ((SimpleCardPileManager)manager).UpdateCardsZIndex();
+        if (!IsClicked && IsMouseHovering)
+        {
+            ((SimpleCardPileManager)Manager).UpdateCardsZIndex();
         }
     }
 
@@ -29,28 +30,35 @@ public partial class SimpleCard : Card
     {
         base.OnGuiInput(@event);
 
-        var m = (SimpleCardPileManager)manager;
+        var m = (SimpleCardPileManager)Manager;
 
-        if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left){
-            if (mouseEvent.Pressed){
-
-                // The dragged card will be shown at the front. 
-                if(IsInteractive()){
+        if (
+            @event is InputEventMouseButton mouseEvent
+            && mouseEvent.ButtonIndex == MouseButton.Left
+        )
+        {
+            if (mouseEvent.Pressed)
+            {
+                // The dragged card will be shown at the front.
+                if (IsInteractive())
+                {
                     m.UpdateCardsZIndex();
                 }
 
                 // Click the draw pile to draw a card.
-                if (m.GetCardPileSize(SimpleCardPileManager.DropzoneType.DrawPile) > 0 && 
-                        m.IsPileEnabled(SimpleCardPileManager.DropzoneType.HandPile) &&
-                        m.GetCardsInPile(SimpleCardPileManager.DropzoneType.DrawPile).Contains(this) && 
-                        !m.IsAnyCardClicked() && 
-                        m.clickDrawPileToDraw)
+                if (
+                    m.GetCardPileSize(SimpleCardPileManager.DropzoneType.DrawPile) > 0
+                    && m.IsPileEnabled(SimpleCardPileManager.DropzoneType.HandPile)
+                    && m.GetCardsInPile(SimpleCardPileManager.DropzoneType.DrawPile).Contains(this)
+                    && !m.IsAnyCardClicked()
+                    && m.clickDrawPileToDraw
+                )
                 {
                     m.DrawCard(1);
                 }
-
             }
-            else{
+            else
+            {
                 if (m.IsCardInHand(this))
                 {
                     m.UpdateCardsTargetPosition();
@@ -59,5 +67,4 @@ public partial class SimpleCard : Card
             }
         }
     }
-
 }

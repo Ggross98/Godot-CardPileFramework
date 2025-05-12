@@ -53,7 +53,7 @@ offset_bottom = 470.0
 mouse_filter = 2
 texture = SubResource("GradientTexture1D_htl6c")
 
-[node name="Enemy0" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "manager")]
+[node name="Enemy0" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "Manager")]
 anchors_preset = 0
 offset_left = 545.0
 offset_top = 188.0
@@ -63,7 +63,7 @@ mouse_filter = 2
 script = ExtResource("2_66fgq")
 HPLabel = NodePath("HP")
 portrait = NodePath("TextureRect")
-manager = NodePath("../../MyCardPileManager")
+Manager = NodePath("../../MyCardPileManager")
 
 [node name="TextureRect" type="TextureRect" parent="Dropzones/Enemy0"]
 layout_mode = 0
@@ -89,7 +89,7 @@ offset_right = 148.0
 offset_bottom = 113.0
 text = "50/50"
 
-[node name="Enemy1" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "manager")]
+[node name="Enemy1" type="Control" parent="Dropzones" node_paths=PackedStringArray("HPLabel", "portrait", "Manager")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 832.0
@@ -100,7 +100,7 @@ mouse_filter = 2
 script = ExtResource("2_66fgq")
 HPLabel = NodePath("HP")
 portrait = NodePath("TextureRect")
-manager = NodePath("../../MyCardPileManager")
+Manager = NodePath("../../MyCardPileManager")
 
 [node name="TextureRect" type="TextureRect" parent="Dropzones/Enemy1"]
 layout_mode = 0
@@ -126,7 +126,7 @@ offset_right = 148.0
 offset_bottom = 113.0
 text = "50/50"
 
-[node name="SkillZone" type="Control" parent="Dropzones" node_paths=PackedStringArray("manager")]
+[node name="SkillZone" type="Control" parent="Dropzones" node_paths=PackedStringArray("Manager")]
 anchors_preset = 0
 offset_left = 390.0
 offset_top = 70.0
@@ -135,9 +135,9 @@ offset_bottom = 470.0
 mouse_filter = 2
 theme = SubResource("Theme_thior")
 script = ExtResource("4_42g6k")
-manager = NodePath("../../MyCardPileManager")
+Manager = NodePath("../../MyCardPileManager")
 
-[node name="DrawPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("manager")]
+[node name="DrawPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("Manager")]
 anchors_preset = 0
 offset_left = 31.0
 offset_top = 634.0
@@ -147,9 +147,9 @@ mouse_filter = 1
 script = ExtResource("6_thior")
 cardUIFaceUp = false
 canDragTopCard = false
-manager = NodePath("../../MyCardPileManager")
+Manager = NodePath("../../MyCardPileManager")
 
-[node name="DiscardPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("manager")]
+[node name="DiscardPile" type="Control" parent="Dropzones" node_paths=PackedStringArray("Manager")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 1401.0
@@ -159,9 +159,9 @@ offset_bottom = 865.0
 mouse_filter = 2
 script = ExtResource("6_thior")
 canDragTopCard = false
-manager = NodePath("../../MyCardPileManager")
+Manager = NodePath("../../MyCardPileManager")
 
-[node name="Hand" type="Control" parent="Dropzones" node_paths=PackedStringArray("manager")]
+[node name="Hand" type="Control" parent="Dropzones" node_paths=PackedStringArray("Manager")]
 anchors_preset = 0
 offset_left = 294.0
 offset_top = 630.0
@@ -173,7 +173,7 @@ MaxHandSize = 10
 MaxHandSpread = 800
 handRotationCurve = ExtResource("8_cv6ll")
 handVerticalCurve = ExtResource("9_cxrpw")
-manager = NodePath("../../MyCardPileManager")
+Manager = NodePath("../../MyCardPileManager")
 
 [node name="MyCardPileManager" type="Control" parent="." node_paths=PackedStringArray("drawPile", "discardPile", "handPile")]
 layout_mode = 3

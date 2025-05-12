@@ -1,21 +1,22 @@
 namespace Ggross.CardPileFramework;
+
 using Godot;
 using Godot.Collections;
 
 public partial class CardDropzone : Control
 {
-    [Export] public CardManager manager;
+    [Export]
+    public CardManager Manager { get; set; }
+
     // [Export] public bool enabled = true;
-    public bool IsMouseHovering { get; protected set;}
-
-
+    public bool IsMouseHovering { get; protected set; }
 
     public enum DropzoneCardLayout
     {
         Up,
         Left,
         Right,
-        Down
+        Down,
     }
 
     [Export]
@@ -25,32 +26,34 @@ public partial class CardDropzone : Control
 
     protected Array<Card> _holdingCards = new Array<Card>();
 
-
-    public override void _Ready(){
+    public override void _Ready()
+    {
         MouseEntered += OnMouseEntered;
         MouseExited += OnMouseExited;
     }
 
     public override void _Process(double delta)
     {
-        
         // Check mouse event
         var tmp = GetGlobalRect().HasPoint(GetGlobalMousePosition());
-        if(IsMouseHovering && !tmp){
+        if (IsMouseHovering && !tmp)
+        {
             EmitSignal(SignalName.MouseExited);
         }
-        if(!IsMouseHovering && tmp){
+        if (!IsMouseHovering && tmp)
+        {
             EmitSignal(SignalName.MouseEntered);
         }
         IsMouseHovering = tmp;
-
     }
 
-    protected virtual void OnMouseEntered(){
+    protected virtual void OnMouseEntered()
+    {
         GD.Print("Mouse Entered Dropzone: ", Name);
     }
 
-    protected virtual void OnMouseExited(){
+    protected virtual void OnMouseExited()
+    {
         GD.Print("Mouse Exited Dropzone: ", Name);
     }
 
@@ -73,15 +76,19 @@ public partial class CardDropzone : Control
         return IsInteractive();
     }
 
-    public virtual bool IsInteractive(){
+    public virtual bool IsInteractive()
+    {
         return Visible;
     }
 
-    public virtual bool IsCardInteractive(Card card){
-        if(IsHolding(card)){
+    public virtual bool IsCardInteractive(Card card)
+    {
+        if (IsHolding(card))
+        {
             return true;
         }
-        else{
+        else
+        {
             return false;
         }
     }
@@ -114,9 +121,12 @@ public partial class CardDropzone : Control
         return _holdingCards.Contains(cardUi);
     }
 
-    public bool IsAnyCardClicked(){
-        foreach(var card in _holdingCards){
-            if(card.IsClicked){
+    public bool IsAnyCardClicked()
+    {
+        foreach (var card in _holdingCards)
+        {
+            if (card.IsClicked)
+            {
                 return true;
             }
         }
@@ -125,8 +135,8 @@ public partial class CardDropzone : Control
 
     public Array<Card> GetCards()
     {
-        // Get a copy of holding cards array. 
-        return [.. _holdingCards]; 
+        // Get a copy of holding cards array.
+        return [.. _holdingCards];
     }
 
     /// <summary>
@@ -138,7 +148,8 @@ public partial class CardDropzone : Control
         OnCardAdded(cardUi);
     }
 
-    protected virtual void OnCardAdded(Card cardUi){
+    protected virtual void OnCardAdded(Card cardUi)
+    {
         GD.Print("Card: ", cardUi.Name, "Added to Dropzone:", Name);
         _holdingCards.Add(cardUi);
     }
@@ -152,7 +163,8 @@ public partial class CardDropzone : Control
         OnCardRemoved(cardUi);
     }
 
-    protected virtual void OnCardRemoved(Card cardUi){
+    protected virtual void OnCardRemoved(Card cardUi)
+    {
         GD.Print("Card: ", cardUi.Name, "Removed from Dropzone:", Name);
         _holdingCards.Remove(cardUi);
     }
@@ -166,18 +178,19 @@ public partial class CardDropzone : Control
 
             var targetPos = Position;
             cardUi.TargetPosition = targetPos;
-            if(instantlyMove){
+            if (instantlyMove)
+            {
                 cardUi.Position = targetPos;
             }
         }
     }
 
-    public virtual void UpdateCardsZIndex(){
+    public virtual void UpdateCardsZIndex()
+    {
         for (int i = 0; i < _holdingCards.Count; i++)
         {
             var cardUi = _holdingCards[i];
             cardUi.ZIndex = cardUi.IsClicked ? 3000 + i : i;
         }
     }
-
 }

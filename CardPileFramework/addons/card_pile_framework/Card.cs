@@ -17,10 +17,16 @@ public partial class Card : Control
     public delegate void CardLeftClickedEventHandler(Card card);
 
     [Signal]
+    public delegate void CardLeftReleasedEventHandler(Card card);
+
+    [Signal]
     public delegate void CardRightClickedEventHandler(Card card);
 
     [Signal]
-    public delegate void CardDroppedEventHandler(Card card);
+    public delegate void CardRightReleasedEventHandler(Card card);
+
+    // [Signal]
+    // public delegate void CardDroppedEventHandler(Card card);
 
     [Signal]
     public delegate void CardDataUpdatedEventHandler(Card card);
@@ -184,12 +190,13 @@ public partial class Card : Control
     {
         if (@event is InputEventMouseButton mouseEvent)
         {
-            if (mouseEvent.Pressed)
+            if (mouseEvent.IsPressed())
             {
                 if (IsInteractive())
                 {
                     IsClicked = true;
                     Rotation = 0;
+
                     if (mouseEvent.ButtonIndex == MouseButton.Left)
                     {
                         EmitSignal(SignalName.CardLeftClicked, this);
@@ -200,31 +207,43 @@ public partial class Card : Control
                     }
                 }
             }
-            else
+            else if (mouseEvent.IsReleased())
             {
                 if (IsClicked)
                 {
                     IsClicked = false;
-                    IsMouseHovering = false;
+                    // IsMouseHovering = false;
                     Rotation = 0;
 
-                    var allDropzones = new Array<CardDropzone>();
-                    Manager.GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
-
-                    foreach (CardDropzone dropzone in allDropzones)
+                    if (mouseEvent.ButtonIndex == MouseButton.Left)
                     {
-                        if (dropzone.GetGlobalRect().HasPoint(GetGlobalMousePosition()))
+                        if (Manager != null)
                         {
-                            if (dropzone.CanDropCard(this))
+                            var allDropzones = new Array<CardDropzone>();
+                            Manager.GetDropzones(GetTree().Root, "CardDropzone", allDropzones);
+
+                            foreach (CardDropzone dropzone in allDropzones)
                             {
-                                dropzone.DropCard(this);
-                                break;
+                                if (dropzone.GetGlobalRect().HasPoint(GetGlobalMousePosition()))
+                                {
+                                    if (dropzone.CanDropCard(this))
+                                    {
+                                        // EmitSignal(SignalName.CardDropped, this);
+                                        dropzone.DropCard(this);
+                                        break;
+                                    }
+                                }
                             }
                         }
-                    }
 
-                    EmitSignal(SignalName.CardUnhovered, this);
-                    EmitSignal(SignalName.CardDropped, this);
+                        EmitSignal(SignalName.CardLeftReleased, this);
+                        EmitSignal(SignalName.CardUnhovered, this);
+                    }
+                    else if (mouseEvent.ButtonIndex == MouseButton.Right)
+                    {
+                        EmitSignal(SignalName.CardRightReleased, this);
+                        EmitSignal(SignalName.CardUnhovered, this);
+                    }
                 }
             }
         }

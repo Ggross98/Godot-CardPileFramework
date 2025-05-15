@@ -25,7 +25,13 @@ public partial class CardManager : Control
     public delegate void CardLeftClickedEventHandler(Card card);
 
     [Signal]
+    public delegate void CardLeftReleasedEventHandler(Card card);
+
+    [Signal]
     public delegate void CardRightClickedEventHandler(Card card);
+
+    [Signal]
+    public delegate void CardRightReleasedEventHandler(Card card);
 
     [Signal]
     public delegate void CardDroppedEventHandler(Card card);
@@ -58,9 +64,19 @@ public partial class CardManager : Control
         EmitSignal(SignalName.CardLeftClicked, card);
     }
 
+    protected virtual void OnCardLeftReleased(Card card)
+    {
+        EmitSignal(SignalName.CardLeftReleased, card);
+    }
+
     protected virtual void OnCardRightClicked(Card card)
     {
         EmitSignal(SignalName.CardRightClicked, card);
+    }
+
+    protected virtual void OnCardRightReleased(Card card)
+    {
+        EmitSignal(SignalName.CardRightReleased, card);
     }
 
     protected virtual void OnCardDropped(Card card)
@@ -98,7 +114,10 @@ public partial class CardManager : Control
         cardUi.CardHovered += OnCardHovered;
         cardUi.CardUnhovered += OnCardUnhovered;
         cardUi.CardLeftClicked += OnCardLeftClicked;
-        cardUi.CardDropped += OnCardDropped;
+        cardUi.CardLeftReleased += OnCardLeftReleased;
+        cardUi.CardRightClicked += OnCardRightClicked;
+        cardUi.CardRightReleased += OnCardRightReleased;
+        // cardUi.CardDropped += OnCardDropped;
 
         AddChild(cardUi);
         return cardUi;
@@ -119,7 +138,7 @@ public partial class CardManager : Control
     {
         MaybeRemoveCardFromAnyDropzones(card);
 
-        EmitSignal(nameof(CardRemovedFromGame), card);
+        EmitSignal(SignalName.CardRemovedFromGame, card);
         card.QueueFree();
 
         UpdateCardsTargetPosition();
@@ -139,7 +158,7 @@ public partial class CardManager : Control
         MaybeRemoveCardFromAnyDropzones(card);
 
         dropzone.AddCard(card);
-        EmitSignal(nameof(CardAddedToDropzone), dropzone, card);
+        EmitSignal(SignalName.CardAddedToDropzone, dropzone, card);
 
         UpdateCardsTargetPosition();
         UpdateCardsZIndex();
@@ -160,7 +179,7 @@ public partial class CardManager : Control
             {
                 // GD.Print(card.Name);
                 dropzone.RemoveCard(card);
-                EmitSignal(nameof(CardRemovedFromDropzone), dropzone, card);
+                EmitSignal(SignalName.CardRemovedFromDropzone, dropzone, card);
 
                 removed = true;
             }

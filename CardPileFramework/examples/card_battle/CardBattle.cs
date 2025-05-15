@@ -85,7 +85,7 @@ public partial class CardBattle : Node2D
             targetingLine.Visible = true;
         };
 
-        cardPileManager.CardDropped += (Card cardUI) =>
+        cardPileManager.CardLeftReleased += (Card cardUI) =>
         {
             targetingLine.Visible = false;
         };

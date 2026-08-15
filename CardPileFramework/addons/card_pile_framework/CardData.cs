@@ -1,26 +1,16 @@
 namespace Ggross.CardPileFramework;
 
-using System;
 using Godot;
-using Godot.Collections;
 
+[GlobalClass]
 public partial class CardData : Resource
 {
     [Export]
-    public string nice_name;
+    public string NiceName { get; set; }
 
     [Export]
-    public string frontface_texture_path,
-        backface_texture_path,
-        resource_script_path;
+    public string FrontfaceTexturePath { get; set; }
 
-    public void LoadProperties(Dictionary jsonData)
-    {
-        foreach (var k in jsonData.Keys)
-        {
-            var key = k.As<string>();
-            Set(key, jsonData[key]);
-            // GD.Print(key, ": ", jsonData[key]);
-        }
-    }
+    [Export]
+    public string BackfaceTexturePath { get; set; }
 }

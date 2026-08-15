@@ -1,44 +1,22 @@
-using System;
 using Ggross.CardPileFramework;
 using Godot;
 
-public partial class SkillZone : CardDropzone
+public partial class SkillZone : CardDropTarget
 {
-    public override bool CanDropCard(Card cardUi)
+    protected override void OnCardDropped(Card card)
     {
-        if (!base.CanDropCard(cardUi))
-            return false;
+        if (card is not MyCard myCard || myCard.CardData is not MyCardData data)
+            return;
 
-        if (
-            cardUi.GetType() == typeof(MyCard)
-            && ((MyCard)cardUi).CardData.GetType() == typeof(MyCardData)
-        )
-        {
-            var data = (MyCardData)((MyCard)cardUi).CardData;
-            var cost = data.cost;
-            var energy = GetNode<CardBattle>("/root/CardBattle").Energy;
+        var battle = GetNode<CardBattle>("/root/CardBattle");
+        if (data.Type != "Skill" || battle.Energy < data.Cost)
+            return;
 
-            return data.type == "Skill" && energy >= cost;
-        }
-        else
-        {
-            return false;
-        }
-    }
+        battle.Energy -= data.Cost;
 
-    protected override void OnCardDropped(Card cardUi)
-    {
-        var data = (MyCardData)((MyCard)cardUi).CardData;
-        GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
+        if (data.NiceName == "Block")
+            battle.Shield += data.Value;
 
-        // A simple implementation of block card.
-        // The potion card is invalid yet.
-        if (data.nice_name == "Block")
-        {
-            GetNode<CardBattle>("/root/CardBattle").Shield += data.value;
-        }
-
-        var manager = (SimpleCardPileManager)Manager;
-        manager.DiscardCard(cardUi);
+        (Manager as SimpleCardPileManager)?.DiscardCard(card);
     }
 }

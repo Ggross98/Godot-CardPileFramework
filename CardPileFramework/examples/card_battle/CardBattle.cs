@@ -1,4 +1,3 @@
-using System;
 using Ggross.CardPileFramework;
 using Godot;
 
@@ -23,6 +22,14 @@ public partial class CardBattle : Node2D
     [Export]
     private Line2D targetingLine;
 
+    [Export(PropertyHint.File, "*.json")]
+    private string cardDatabasePath =
+        "res://examples/card_battle/card_data/example_card_database.json";
+
+    [Export(PropertyHint.File, "*.json")]
+    private string cardCollectionPath =
+        "res://examples/card_battle/card_data/example_card_collection.json";
+
     public const int TURN_ENERGY = 4,
         MAX_HP = 50,
         TURN_DRAW = 5;
@@ -31,7 +38,7 @@ public partial class CardBattle : Node2D
         hp;
     public int Energy
     {
-        get { return energy; }
+        get => energy;
         set
         {
             energy = value;
@@ -40,7 +47,7 @@ public partial class CardBattle : Node2D
     }
     public int Shield
     {
-        get { return shield; }
+        get => shield;
         set
         {
             shield = value;
@@ -49,7 +56,7 @@ public partial class CardBattle : Node2D
     }
     public int HP
     {
-        get { return hp; }
+        get => hp;
         set
         {
             hp = value;
@@ -67,7 +74,8 @@ public partial class CardBattle : Node2D
     {
         cardPileManager.CardHovered += (Card cardUI) =>
         {
-            var tmp = (MyCard)cardUI;
+            if (cardUI is not MyCard tmp || !cardPileManager.IsCardInHand(tmp))
+                return;
             descriptionLabel.Text = FormatCardDescription(tmp);
             descriptionPanel.Visible = true;
             hoveringCard = tmp;
@@ -81,6 +89,8 @@ public partial class CardBattle : Node2D
 
         cardPileManager.CardLeftClicked += (Card cardUI) =>
         {
+            if (!cardPileManager.IsCardInHand(cardUI))
+                return;
             targetingLine.SetPointPosition(0, cardUI.Position + cardUI.Size / 2);
             targetingLine.Visible = true;
         };
@@ -92,6 +102,9 @@ public partial class CardBattle : Node2D
 
         endTurnButton.Pressed += OnEndButtonPressed;
 
+        cardPileManager.ResetDeck(
+            ExampleDeckLoader.LoadDeck(cardDatabasePath, cardCollectionPath)
+        );
         StartTurn();
     }
 
@@ -118,10 +131,10 @@ public partial class CardBattle : Node2D
         Energy = TURN_ENERGY;
         Shield = 0;
         foreach (
-            var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.DropzoneType.HandPile)
+            var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.PileKind.Hand)
         )
         {
-            cardPileManager.SetCardPile(card, SimpleCardPileManager.DropzoneType.DiscardPile);
+            cardPileManager.SetCardPile(card, SimpleCardPileManager.PileKind.Discard);
         }
 
         cardPileManager.DrawCard(TURN_DRAW);
@@ -138,9 +151,9 @@ public partial class CardBattle : Node2D
     public string FormatCardDescription(MyCard card)
     {
         var data = (MyCardData)card.CardData;
-        return data.description.Replace(
+        return data.Description.Replace(
             "{value}",
-            string.Format("[color=red]{0}[/color]", data.value)
+            string.Format("[color=red]{0}[/color]", data.Value)
         );
     }
 }

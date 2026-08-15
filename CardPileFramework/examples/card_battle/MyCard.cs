@@ -1,8 +1,7 @@
-using System;
 using Ggross.CardPileFramework;
 using Godot;
 
-public partial class MyCard : SimpleCard
+public partial class MyCard : Card
 {
     [Export]
     private Label nameLabel,
@@ -12,27 +11,16 @@ public partial class MyCard : SimpleCard
     [Export]
     private TextureRect image;
 
-    public override void _Ready()
-    {
-        base._Ready();
-
-        // if (cardData != null)
-        // {
-        //     cardData.Changed += UpdateDisplay;
-        //     UpdateDisplay();
-        // }
-    }
-
     public override void UpdateDisplay()
     {
         base.UpdateDisplay();
 
-        var data = (MyCardData)cardData;
+        if (cardData is not MyCardData data)
+            return;
 
-        nameLabel.Text = data.nice_name;
-        typeLabel.Text = data.type;
-        costLabel.Text = data.cost + "";
-
-        image.Texture = GD.Load<Texture2D>(data.image_texture_path);
+        nameLabel.Text = data.NiceName;
+        typeLabel.Text = data.Type;
+        costLabel.Text = data.Cost.ToString();
+        image.Texture = GD.Load<Texture2D>(data.ImageTexturePath);
     }
 }

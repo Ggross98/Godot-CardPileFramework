@@ -1,8 +1,7 @@
-using System;
 using Ggross.CardPileFramework;
 using Godot;
 
-public partial class Enemy : CardDropzone
+public partial class Enemy : CardDropTarget
 {
     [Export]
     private Label HPLabel;
@@ -14,7 +13,7 @@ public partial class Enemy : CardDropzone
         maxHP;
     public int HP
     {
-        get { return hp; }
+        get => hp;
         set
         {
             hp = value;
@@ -29,56 +28,34 @@ public partial class Enemy : CardDropzone
     public override void _Ready()
     {
         base._Ready();
-
         maxHP = 50;
         HP = maxHP;
     }
 
     protected override void OnMouseEntered()
     {
-        base.OnMouseEntered();
-
         portrait.SelfModulate = new Color(0, 0, 0.5f, 0.5f);
     }
 
     protected override void OnMouseExited()
     {
-        base.OnMouseExited();
-
         portrait.SelfModulate = Colors.White;
     }
 
-    protected override void OnCardDropped(Card cardUi)
+    protected override void OnCardDropped(Card card)
     {
-        var data = (MyCardData)((MyCard)cardUi).CardData;
-        GetNode<CardBattle>("/root/CardBattle").Energy -= data.cost;
-        HP -= data.value;
+        if (card is not MyCard myCard || myCard.CardData is not MyCardData data)
+            return;
+
+        var battle = GetNode<CardBattle>("/root/CardBattle");
+        if (data.Type != "Attack" || battle.Energy < data.Cost)
+            return;
+
+        battle.Energy -= data.Cost;
+        HP -= data.Value;
         UpdateDisplay();
 
-        var manager = (SimpleCardPileManager)Manager;
-        manager.DiscardCard(cardUi);
-    }
-
-    public override bool CanDropCard(Card cardUi)
-    {
-        if (!base.CanDropCard(cardUi))
-            return false;
-
-        if (
-            cardUi.GetType() == typeof(MyCard)
-            && ((MyCard)cardUi).CardData.GetType() == typeof(MyCardData)
-        )
-        {
-            var data = (MyCardData)((MyCard)cardUi).CardData;
-            var cost = data.cost;
-            var energy = GetNode<CardBattle>("/root/CardBattle").Energy;
-
-            return data.type == "Attack" && energy >= cost;
-        }
-        else
-        {
-            return false;
-        }
+        (Manager as SimpleCardPileManager)?.DiscardCard(card);
     }
 
     public void UpdateDisplay()

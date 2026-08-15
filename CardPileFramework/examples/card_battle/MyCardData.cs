@@ -1,15 +1,20 @@
-using System;
 using Ggross.CardPileFramework;
 using Godot;
 
 public partial class MyCardData : CardData
 {
     [Export]
-    public int cost,
-        value;
+    public int Cost { get; set; }
 
     [Export]
-    public string type,
-        description,
-        image_texture_path;
+    public int Value { get; set; }
+
+    [Export]
+    public string Type { get; set; }
+
+    [Export]
+    public string Description { get; set; }
+
+    [Export]
+    public string ImageTexturePath { get; set; }
 }

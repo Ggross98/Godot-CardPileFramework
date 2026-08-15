@@ -69,6 +69,7 @@ public partial class CardBattle : Node2D
     }
 
     private MyCard hoveringCard;
+    private bool _suspendDiscardRecycle;
 
     public override void _Ready()
     {
@@ -101,6 +102,8 @@ public partial class CardBattle : Node2D
         };
 
         endTurnButton.Pressed += OnEndButtonPressed;
+        cardPileManager.DrawPileUpdated += OnDrawOrDiscardPileUpdated;
+        cardPileManager.DiscardPileUpdated += OnDrawOrDiscardPileUpdated;
 
         cardPileManager.ResetDeck(
             ExampleDeckLoader.LoadDeck(cardDatabasePath, cardCollectionPath)
@@ -130,14 +133,45 @@ public partial class CardBattle : Node2D
     {
         Energy = TURN_ENERGY;
         Shield = 0;
+
+        _suspendDiscardRecycle = true;
         foreach (
             var card in cardPileManager.GetCardsInPile(SimpleCardPileManager.PileKind.Hand)
         )
         {
             cardPileManager.SetCardPile(card, SimpleCardPileManager.PileKind.Discard);
         }
+        _suspendDiscardRecycle = false;
 
+        RecycleDiscardIntoDrawIfEmpty();
         cardPileManager.DrawCard(TURN_DRAW);
+    }
+
+    void OnDrawOrDiscardPileUpdated()
+    {
+        RecycleDiscardIntoDrawIfEmpty();
+    }
+
+    void RecycleDiscardIntoDrawIfEmpty()
+    {
+        if (_suspendDiscardRecycle)
+            return;
+        if (cardPileManager.GetCardPileSize(SimpleCardPileManager.PileKind.Draw) > 0)
+            return;
+
+        var discardCards = cardPileManager.GetCardsInPile(
+            SimpleCardPileManager.PileKind.Discard
+        );
+        if (discardCards.Count == 0)
+            return;
+
+        foreach (var card in discardCards)
+            cardPileManager.SetCardPile(card, SimpleCardPileManager.PileKind.Draw);
+
+        var drawPile = cardPileManager.GetPile(SimpleCardPileManager.PileKind.Draw);
+        drawPile.Shuffle();
+        cardPileManager.UpdateCardsTargetPosition();
+        cardPileManager.UpdateCardsZIndex();
     }
 
     public void EndTurn() { }
